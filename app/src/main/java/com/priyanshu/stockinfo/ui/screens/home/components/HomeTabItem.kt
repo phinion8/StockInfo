@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.priyanshu.stockinfo.ui.theme.gray300
 import com.priyanshu.stockinfo.ui.theme.gray500
+import com.priyanshu.stockinfo.ui.theme.grayShade2
 import com.priyanshu.stockinfo.ui.theme.green
 import com.priyanshu.stockinfo.ui.theme.lightGray
 import com.priyanshu.stockinfo.ui.theme.white
@@ -33,14 +34,14 @@ fun HomeTabItem(
     
     Box(
         modifier = Modifier
-            .border(width = 1.dp, color = white, shape = CircleShape)
-            .clickable {
-                onItemClick()
-            }
+            .border(width = 1.dp, color = if (isItemSelected) white else gray300, shape = CircleShape)
             .background(
                 if (isItemSelected) gray500 else MaterialTheme.colorScheme.background,
                 shape = CircleShape
             )
+            .clickable {
+                onItemClick()
+            }
             .padding(horizontal = 18.dp, vertical = 8.dp)
             .clip(CircleShape),
         contentAlignment = Alignment.Center

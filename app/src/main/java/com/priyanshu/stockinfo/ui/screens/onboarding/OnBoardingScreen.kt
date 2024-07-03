@@ -62,8 +62,8 @@ fun OnBoardingScreen(
 
             CustomElevatedButton(onClick = {
                 viewModel.saveOnBoardingState(completed = true)
-                navController.navigate(Routes.HOME_GRAPH)
                 navController.popBackStack()
+                navController.navigate(Routes.HOME_GRAPH)
             }, text = "Get Started")
         }
 
