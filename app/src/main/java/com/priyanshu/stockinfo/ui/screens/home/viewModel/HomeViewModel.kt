@@ -1,6 +1,5 @@
 package com.priyanshu.stockinfo.ui.screens.home.viewModel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers

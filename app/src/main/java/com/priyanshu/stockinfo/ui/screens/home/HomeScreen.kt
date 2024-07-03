@@ -1,7 +1,7 @@
 package com.priyanshu.stockinfo.ui.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,13 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -98,12 +97,13 @@ fun HomeScreenContent(
     }
     val pagerState = rememberPagerState(
         pageCount = {
-            2
+            3
         }
     )
 
     val isLoading by viewModel.isLoading.collectAsState()
     val topGainerAndLosers by viewModel.topGainersAndLosers.collectAsState()
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -117,19 +117,28 @@ fun HomeScreenContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(start = 8.dp)
+                .horizontalScroll(scrollState)
         ) {
             HomeTabItem(tabTitle = "Top Gainers", onItemClick = {
                 coroutineScope.launch {
                     pagerState.scrollToPage(0)
+                    scrollState.scrollTo(0)
                 }
             }, isItemSelected = tabItemSelected == TabItems.TopGainersTab.id)
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             HomeTabItem(tabTitle = "Top Losers", onItemClick = {
                 coroutineScope.launch {
                     pagerState.scrollToPage(1)
                 }
             }, isItemSelected = tabItemSelected == TabItems.TopLosersTab.id)
+            Spacer(modifier = Modifier.width(12.dp))
+            HomeTabItem(tabTitle = "Most Traded", onItemClick = {
+                coroutineScope.launch {
+                    pagerState.scrollToPage(2)
+                    scrollState.scrollTo(100)
+                }
+            }, isItemSelected = tabItemSelected == TabItems.MostTraded.id)
         }
 
         if (isLoading) {
@@ -152,18 +161,22 @@ fun HomeScreenContent(
                 when (index) {
                     0 -> {
                         topGainerAndLosers?.let {
-                            TopGainersScreen(
-                                topGainers = it.top_gainers
+                            TopGainersLosersTab(
+                                stockList = it.top_gainers
                             )
                         }
                     }
 
                     1 -> {
                         topGainerAndLosers?.let {
-                            TopLosersScreen(
-                                topLosers = it.top_losers
+                            TopGainersLosersTab(
+                                stockList = it.top_losers
                             )
                         }
+                    }
+
+                    2 -> {
+                        topGainerAndLosers?.most_actively_traded?.let { TopGainersLosersTab(stockList = it) }
                     }
                 }
             }
@@ -171,9 +184,18 @@ fun HomeScreenContent(
     }
 
     LaunchedEffect(pagerState.currentPage) {
-        tabItemSelected = when (pagerState.currentPage) {
-            0 -> TabItems.TopGainersTab.id
-            1 -> TabItems.TopLosersTab.id
+        when (pagerState.currentPage) {
+            0 ->{
+                tabItemSelected = TabItems.TopGainersTab.id
+                scrollState.scrollTo(0)
+            }
+            1 -> {
+                tabItemSelected = TabItems.TopLosersTab.id
+            }
+            2 ->{
+                tabItemSelected = TabItems.MostTraded.id
+                scrollState.scrollTo(100)
+            }
             else -> tabItemSelected
         }
     }
@@ -181,8 +203,8 @@ fun HomeScreenContent(
 
 
 @Composable
-fun TopGainersScreen(
-    topGainers: List<TopGainerLoserItem>
+fun TopGainersLosersTab(
+    stockList: List<TopGainerLoserItem>
 ) {
     LazyVerticalGrid(
         modifier = Modifier
@@ -190,23 +212,7 @@ fun TopGainersScreen(
             .padding(top = 16.dp),
         columns = GridCells.Fixed(2)
     ) {
-        items(topGainers) {
-            TopGainerLoserItem(topGainerLoserItem = it)
-        }
-    }
-}
-
-@Composable
-fun TopLosersScreen(
-    topLosers: List<TopGainerLoserItem>
-) {
-    LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 16.dp),
-        columns = GridCells.Fixed(2)
-    ) {
-        items(topLosers) {
+        items(stockList) {
             TopGainerLoserItem(topGainerLoserItem = it)
         }
     }

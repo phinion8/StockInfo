@@ -39,10 +39,10 @@ fun HomeTabItem(
                 if (isItemSelected) gray500 else MaterialTheme.colorScheme.background,
                 shape = CircleShape
             )
+            .padding(horizontal = 18.dp, vertical = 8.dp)
             .clickable {
                 onItemClick()
             }
-            .padding(horizontal = 18.dp, vertical = 8.dp)
             .clip(CircleShape),
         contentAlignment = Alignment.Center
     ) {
