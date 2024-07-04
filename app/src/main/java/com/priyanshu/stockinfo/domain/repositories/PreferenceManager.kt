@@ -5,4 +5,6 @@ import kotlinx.coroutines.flow.Flow
 interface PreferenceManager {
     suspend fun saveOnBoardingState(completed: Boolean)
     fun readOnBoardingState(): Flow<Boolean>
+    suspend fun saveCachedTime(time: Long)
+    fun getCachedTime(): Flow<Long>
 }

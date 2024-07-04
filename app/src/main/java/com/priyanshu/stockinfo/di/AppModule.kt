@@ -1,9 +1,14 @@
 package com.priyanshu.stockinfo.di
 
 import android.content.Context
+import androidx.room.Room
+import com.priyanshu.stockinfo.data.local.dao.StockDao
+import com.priyanshu.stockinfo.data.local.database.StockDatabase
 import com.priyanshu.stockinfo.data.remote.StockApi
+import com.priyanshu.stockinfo.data.repositories.LocalRepositoryImpl
 import com.priyanshu.stockinfo.data.repositories.PreferenceManagerImpl
 import com.priyanshu.stockinfo.data.repositories.StockRepositoryImpl
+import com.priyanshu.stockinfo.domain.repositories.LocalRepository
 import com.priyanshu.stockinfo.domain.repositories.PreferenceManager
 import com.priyanshu.stockinfo.domain.repositories.StockRepository
 import com.priyanshu.stockinfo.domain.usecases.StockUseCase
@@ -45,6 +50,25 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideStockDatabase(
+        @ApplicationContext context: Context
+    ) = Room.databaseBuilder(context, StockDatabase::class.java, Constants.STOCK_DATABASE)
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideStockDao(
+        stockDatabase: StockDatabase
+    ) = stockDatabase.stockDao()
+
+    @Provides
+    @Singleton
+    fun provideLocalRepository(
+        stockDao: StockDao
+    ): LocalRepository = LocalRepositoryImpl(stockDao)
+
+    @Provides
+    @Singleton
     fun provideStockRepository(
         stockApi: StockApi
     ): StockRepository {
@@ -54,6 +78,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideStockUseCase(
-        stockRepository: StockRepository
-    ) = StockUseCase(stockRepository)
+        stockRepository: StockRepository,
+        localRepository: LocalRepository,
+        preferenceManager: PreferenceManager
+    ) = StockUseCase(stockRepository, localRepository, preferenceManager)
 }

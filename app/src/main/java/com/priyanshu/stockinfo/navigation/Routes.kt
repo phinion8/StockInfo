@@ -6,4 +6,5 @@ object Routes {
     const val HOME_GRAPH = "home_graph"
     const val HOME_SCREENS = "home_screen"
     const val WATCHLIST_SCREEN = "watchlist_screen"
+    const val COMPANY_OVERVIEW_SCREEN = "company_overview_screen"
 }

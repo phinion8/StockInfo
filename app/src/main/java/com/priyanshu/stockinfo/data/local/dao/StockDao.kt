@@ -1,20 +1,22 @@
 package com.priyanshu.stockinfo.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
-import com.priyanshu.stockinfo.data.local.entities.TopGainerLoserItem
+import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StockDao {
 
-    @Upsert
-    fun addAllTopGainersLosers(topGainerLoserItem: List<TopGainerLoserItem>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addTopGainersAndLosers(topGainerAndLosers: TopGainerAndLosers)
 
     @Query("SELECT * FROM top_gainers_losers_table")
-    fun getAllTopGainersLosers(): List<TopGainerLoserItem>
+    suspend fun getTopGainersAnsLosers(): TopGainerAndLosers
 
     @Query("DELETE FROM top_gainers_losers_table")
-    fun clearAllTopGainersLosers()
+    suspend fun clearAllTopGainersLosers()
 
 }

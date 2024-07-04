@@ -1,5 +1,8 @@
 package com.priyanshu.stockinfo.ui.screens.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -12,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -32,10 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.priyanshu.stockinfo.domain.models.TopGainerLoserItem
 import com.priyanshu.stockinfo.navigation.HomeNavGraph
+import com.priyanshu.stockinfo.navigation.Screens
 import com.priyanshu.stockinfo.ui.components.BottomNavBar
 import com.priyanshu.stockinfo.ui.components.models.bottomNavItems
 import com.priyanshu.stockinfo.ui.screens.home.components.HomeTabItem
@@ -43,6 +50,7 @@ import com.priyanshu.stockinfo.ui.screens.home.components.TopAppBar
 import com.priyanshu.stockinfo.ui.screens.home.components.TopGainerLoserItem
 import com.priyanshu.stockinfo.ui.screens.home.components.TopGainerLoserItemLoading
 import com.priyanshu.stockinfo.ui.screens.home.viewModel.HomeViewModel
+import com.priyanshu.stockinfo.utils.isScrollingUp
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,7 +97,8 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     innerPadding: PaddingValues,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     val coroutineScope = rememberCoroutineScope()
     var tabItemSelected by remember {
@@ -101,9 +110,13 @@ fun HomeScreenContent(
         }
     )
 
+
+    val lazyGridState = rememberLazyGridState()
     val isLoading by viewModel.isLoading.collectAsState()
     val topGainerAndLosers by viewModel.topGainersAndLosers.collectAsState()
     val scrollState = rememberScrollState()
+
+    val topAppBarVisibility = lazyGridState.isScrollingUp()
 
     Column(
         modifier = Modifier
@@ -111,7 +124,14 @@ fun HomeScreenContent(
             .padding(start = 16.dp, end = 16.dp, bottom = innerPadding.calculateBottomPadding()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopAppBar(title = "Stocks")
+        AnimatedVisibility(
+            visible = topAppBarVisibility,
+            exit = shrinkVertically(),
+            enter = expandVertically()
+        ) {
+            TopAppBar(title = "Stocks")
+        }
+
         Spacer(modifier = Modifier.size(16.dp))
 
         Row(
@@ -162,7 +182,11 @@ fun HomeScreenContent(
                     0 -> {
                         topGainerAndLosers?.let {
                             TopGainersLosersTab(
-                                stockList = it.top_gainers
+                                stockList = it.top_gainers,
+                                state = lazyGridState,
+                                onItemClick = {
+                                    navController.navigate(Screens.CompanyOverview(it).buildRoute())
+                                }
                             )
                         }
                     }
@@ -170,13 +194,25 @@ fun HomeScreenContent(
                     1 -> {
                         topGainerAndLosers?.let {
                             TopGainersLosersTab(
-                                stockList = it.top_losers
+                                stockList = it.top_losers,
+                                state = lazyGridState,
+                                onItemClick = {
+                                    navController.navigate(Screens.CompanyOverview(it).buildRoute())
+                                }
                             )
                         }
                     }
 
                     2 -> {
-                        topGainerAndLosers?.most_actively_traded?.let { TopGainersLosersTab(stockList = it) }
+                        topGainerAndLosers?.most_actively_traded?.let {
+                            TopGainersLosersTab(
+                                stockList = it,
+                                state = lazyGridState,
+                                onItemClick = {
+                                    navController.navigate(Screens.CompanyOverview(it).buildRoute())
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -185,17 +221,20 @@ fun HomeScreenContent(
 
     LaunchedEffect(pagerState.currentPage) {
         when (pagerState.currentPage) {
-            0 ->{
+            0 -> {
                 tabItemSelected = TabItems.TopGainersTab.id
                 scrollState.scrollTo(0)
             }
+
             1 -> {
                 tabItemSelected = TabItems.TopLosersTab.id
             }
-            2 ->{
+
+            2 -> {
                 tabItemSelected = TabItems.MostTraded.id
                 scrollState.scrollTo(100)
             }
+
             else -> tabItemSelected
         }
     }
@@ -204,16 +243,19 @@ fun HomeScreenContent(
 
 @Composable
 fun TopGainersLosersTab(
-    stockList: List<TopGainerLoserItem>
+    state: LazyGridState,
+    stockList: List<TopGainerLoserItem>,
+    onItemClick: (ticker: String) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 16.dp),
-        columns = GridCells.Fixed(2)
+        columns = GridCells.Fixed(2),
+        state = state
     ) {
         items(stockList) {
-            TopGainerLoserItem(topGainerLoserItem = it)
+            TopGainerLoserItem(topGainerLoserItem = it, onItemClick)
         }
     }
 }

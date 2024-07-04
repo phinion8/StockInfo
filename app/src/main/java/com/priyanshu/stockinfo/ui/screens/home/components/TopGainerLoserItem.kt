@@ -1,6 +1,7 @@
 package com.priyanshu.stockinfo.ui.screens.home.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +23,8 @@ import com.priyanshu.stockinfo.ui.theme.red
 
 @Composable
 fun TopGainerLoserItem(
-    topGainerLoserItem: TopGainerLoserItem
+    topGainerLoserItem: TopGainerLoserItem,
+    onItemClick: (ticker: String) -> Unit
 ) {
 
     Column(
@@ -31,7 +33,10 @@ fun TopGainerLoserItem(
             .fillMaxWidth(0.4f)
             .clip(RoundedCornerShape(16.dp))
             .border(width = 1.dp, color = gray300, shape = RoundedCornerShape(16.dp))
-            .padding(all = 12.dp),
+            .padding(all = 12.dp)
+            .clickable {
+                onItemClick(topGainerLoserItem.ticker)
+            },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
