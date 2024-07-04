@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.priyanshu.stockinfo"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -97,4 +97,7 @@ dependencies {
     annotationProcessor (libs.androidx.room.room.compiler)
     kapt (libs.androidx.room.room.compiler)
     implementation (libs.androidx.room.ktx)
+
+    //YCharts
+    implementation (libs.ycharts)
 }

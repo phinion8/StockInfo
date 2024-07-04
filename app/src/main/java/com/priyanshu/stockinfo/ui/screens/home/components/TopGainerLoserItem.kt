@@ -24,7 +24,7 @@ import com.priyanshu.stockinfo.ui.theme.red
 @Composable
 fun TopGainerLoserItem(
     topGainerLoserItem: TopGainerLoserItem,
-    onItemClick: (ticker: String) -> Unit
+    onItemClick: (TopGainerLoserItem) -> Unit
 ) {
 
     Column(
@@ -35,7 +35,7 @@ fun TopGainerLoserItem(
             .border(width = 1.dp, color = gray300, shape = RoundedCornerShape(16.dp))
             .padding(all = 12.dp)
             .clickable {
-                onItemClick(topGainerLoserItem.ticker)
+                onItemClick(topGainerLoserItem)
             },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -55,7 +55,7 @@ fun TopGainerLoserItem(
         )
 
         Text(
-            text = if (topGainerLoserItem.change_percentage.contains("-")) "-${topGainerLoserItem.change_percentage}" else "+${topGainerLoserItem.change_percentage}",
+            text = if (topGainerLoserItem.change_percentage.contains("-")) "${topGainerLoserItem.change_percentage}" else "+${topGainerLoserItem.change_percentage}",
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = if (!topGainerLoserItem.change_amount.contains("-")) green else red
             )

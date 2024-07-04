@@ -19,7 +19,7 @@ fun ShowLottieAnimation(
 ) {
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(rawRes))
-    val progress by animateLottieCompositionAsState(composition)
+    val progress by animateLottieCompositionAsState(composition, iterations = LottieConstants.IterateForever)
     LottieAnimation(
         modifier = modifier,
         composition = composition,

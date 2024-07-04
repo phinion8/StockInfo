@@ -32,3 +32,17 @@ fun LazyGridState.isScrollingUp(): Boolean {
         }
     }.value
 }
+
+object AppUtils{
+    fun formatMarketCap(value: String?): String? {
+        value?.toLongOrNull()?.let {
+            return when {
+                it >= 1_000_000_000_000 -> String.format("%.2fT", it / 1_000_000_000_000.0)
+                it >= 1_000_000_000 -> String.format("%.2fB", it / 1_000_000_000.0)
+                it >= 1_000_000 -> String.format("%.2fM", it / 1_000_000.0)
+                else -> it.toString()
+            }
+        }
+        return null
+    }
+}

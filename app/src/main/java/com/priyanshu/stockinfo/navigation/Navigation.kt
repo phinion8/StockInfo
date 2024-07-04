@@ -1,5 +1,6 @@
 package com.priyanshu.stockinfo.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -63,13 +64,24 @@ fun HomeNavGraph(
             WatchListScreen(innerPadding = innerPadding)
         }
         composable(
-            route = Screens.CompanyOverview(null).buildRoute(), arguments = listOf(
-                navArgument("ticker") { type = NavType.StringType })
+            route = Screens.CompanyOverview(null, null, null, null, null).buildRoute(),
+            arguments = listOf(
+                navArgument("ticker") { type = NavType.StringType },
+                navArgument("price") { type = NavType.StringType },
+                navArgument("change_amount") { type = NavType.StringType },
+                navArgument("change_percentage") { type = NavType.StringType },
+                navArgument("volume") { type = NavType.StringType },
+            ),
         ) { navBackStackEntry ->
             val ticker = navBackStackEntry.arguments?.getString("ticker")
+            val price = navBackStackEntry.arguments?.getString("price")
+            val changeAmount = navBackStackEntry.arguments?.getString("change_amount")
+            val changePercentage = navBackStackEntry.arguments?.getString("change_percentage")
+            val volume = navBackStackEntry.arguments?.getString("volume")
             showBottomBar(false)
-            if (ticker != null) {
-                CompanyOverviewScreen(ticker)
+            if (ticker != null && price != null && changePercentage != null && changeAmount != null && volume != null) {
+                Log.d("SOMEISSUE", changePercentage)
+                CompanyOverviewScreen(ticker, price, changeAmount, changePercentage, volume)
             }
         }
     }

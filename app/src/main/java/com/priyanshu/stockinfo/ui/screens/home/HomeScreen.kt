@@ -1,5 +1,6 @@
 package com.priyanshu.stockinfo.ui.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -185,7 +186,15 @@ fun HomeScreenContent(
                                 stockList = it.top_gainers,
                                 state = lazyGridState,
                                 onItemClick = {
-                                    navController.navigate(Screens.CompanyOverview(it).buildRoute())
+                                    navController.navigate(
+                                        Screens.CompanyOverview(
+                                            ticker = it.ticker,
+                                            price = it.price,
+                                            change_amount = it.change_amount,
+                                            change_percentage = it.change_percentage,
+                                            volume = it.volume
+                                        ).buildRoute()
+                                    )
                                 }
                             )
                         }
@@ -197,7 +206,15 @@ fun HomeScreenContent(
                                 stockList = it.top_losers,
                                 state = lazyGridState,
                                 onItemClick = {
-                                    navController.navigate(Screens.CompanyOverview(it).buildRoute())
+                                    navController.navigate(
+                                        Screens.CompanyOverview(
+                                            ticker = it.ticker,
+                                            price = it.price,
+                                            change_amount = it.change_amount,
+                                            change_percentage = it.change_percentage,
+                                            volume = it.volume
+                                        ).buildRoute()
+                                    )
                                 }
                             )
                         }
@@ -209,7 +226,16 @@ fun HomeScreenContent(
                                 stockList = it,
                                 state = lazyGridState,
                                 onItemClick = {
-                                    navController.navigate(Screens.CompanyOverview(it).buildRoute())
+                                    navController.navigate(
+                                        Screens.CompanyOverview(
+                                            ticker = it.ticker,
+                                            price = it.price,
+                                            change_amount = it.change_amount,
+                                            change_percentage = it.change_percentage,
+                                            volume = it.volume
+                                        ).buildRoute()
+
+                                    )
                                 }
                             )
                         }
@@ -245,7 +271,7 @@ fun HomeScreenContent(
 fun TopGainersLosersTab(
     state: LazyGridState,
     stockList: List<TopGainerLoserItem>,
-    onItemClick: (ticker: String) -> Unit
+    onItemClick: (TopGainerLoserItem) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier
