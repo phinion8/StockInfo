@@ -81,4 +81,5 @@ class CompanyOverviewViewModel @Inject constructor(
         }
     }
 
+
 }

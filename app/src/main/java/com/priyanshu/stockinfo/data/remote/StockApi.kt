@@ -2,6 +2,7 @@ package com.priyanshu.stockinfo.data.remote
 
 import com.priyanshu.stockinfo.domain.models.CompanyOverview
 import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
+import com.priyanshu.stockinfo.domain.models.search.SearchItem
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -24,4 +25,10 @@ interface StockApi {
         @Query("apikey") apiKey: String,
         @Query("datatype") datatype: String
     ): ResponseBody
+
+    @GET("query?function=SYMBOL_SEARCH")
+    suspend fun searchTicker(
+        @Query("keywords") keywords: String,
+        @Query("apikey") apiKey: String
+    ): SearchItem
 }

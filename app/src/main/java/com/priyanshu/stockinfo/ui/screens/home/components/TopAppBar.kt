@@ -3,6 +3,7 @@ package com.priyanshu.stockinfo.ui.screens.home.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,8 @@ import com.priyanshu.stockinfo.ui.theme.primaryColor
 
 @Composable
 fun TopAppBar(
-    title: String
+    title: String,
+    onSearchClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -66,7 +68,10 @@ fun TopAppBar(
                 .size(35.dp)
                 .background(shape = CircleShape, color = Color.Transparent)
                 .border(width = 1.dp, shape = CircleShape, color = gray300)
-                .padding(8.dp),
+                .padding(8.dp)
+                .clickable {
+                    onSearchClick()
+                },
             imageVector = Icons.Default.Search,
             contentDescription = "Search",
             tint = primaryColor
@@ -77,5 +82,5 @@ fun TopAppBar(
 @Preview
 @Composable
 private fun TopAppBarPreview() {
-    TopAppBar(title = "Stocks")
+    TopAppBar(title = "Stocks", onSearchClick = {})
 }

@@ -1,9 +1,5 @@
 package com.priyanshu.stockinfo.ui.screens.overview
 
-import android.graphics.Typeface
-import android.util.Log
-import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,17 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,23 +27,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
-import co.yml.charts.axis.AxisConfig
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.AccessibilityConfig
 import co.yml.charts.common.model.Point
@@ -68,12 +55,9 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.priyanshu.stockinfo.domain.models.IntraDayInfo
 import com.priyanshu.stockinfo.ui.components.LoadingDialog
-import com.priyanshu.stockinfo.ui.screens.home.components.ExpandableText
-import com.priyanshu.stockinfo.ui.screens.home.viewModel.HomeViewModel
 import com.priyanshu.stockinfo.ui.screens.overview.components.CompanyAbout
 import com.priyanshu.stockinfo.ui.screens.overview.viewModel.CompanyOverviewViewModel
 import com.priyanshu.stockinfo.ui.theme.blue
-import com.priyanshu.stockinfo.ui.theme.gray500
 import com.priyanshu.stockinfo.ui.theme.green
 import com.priyanshu.stockinfo.ui.theme.lightGray
 import com.priyanshu.stockinfo.ui.theme.primaryColor
@@ -84,10 +68,6 @@ import com.priyanshu.stockinfo.utils.AppUtils
 @Composable
 fun CompanyOverviewScreen(
     ticker: String,
-    price: String,
-    changeAmount: String,
-    changePercentage: String,
-    volume: String,
     viewModel: CompanyOverviewViewModel = hiltViewModel()
 ) {
 
@@ -96,7 +76,7 @@ fun CompanyOverviewScreen(
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getIntraDayInfoList("IBM")
+        viewModel.getIntraDayInfoList("AAPL")
     }
 
     val companyOverview by viewModel.companyOverviewState.collectAsState()
@@ -104,6 +84,22 @@ fun CompanyOverviewScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val scrollState = rememberScrollState()
+    var currentPrice by remember {
+        mutableStateOf(0.0)
+    }
+    var openingPrice by remember {
+        mutableStateOf(0.0)
+    }
+    val percentage by remember {
+        derivedStateOf {
+            ((currentPrice - openingPrice) / openingPrice ) * 100
+        }
+    }
+
+    if (intraDayInfoList.isNotEmpty()) {
+        currentPrice = intraDayInfoList[intraDayInfoList.size - 1].close
+        openingPrice = intraDayInfoList[0].close
+    }
 
     if (isLoading) {
         LoadingDialog(
@@ -160,25 +156,21 @@ fun CompanyOverviewScreen(
                         }
                     }
 
-                    Column {
-                        Text(
-                            text = "$$price",
-                            style = MaterialTheme.typography.headlineLarge.copy(fontSize = 18.sp)
-                        )
-                        Text(
-                            text = if (!changeAmount.contains("-")) ("+" + changePercentage.substring(
-                                0,
-                                changePercentage.length - 2
-                            ) + "%▲") else "${
-                                changePercentage.substring(
-                                    0,
-                                    changePercentage.length - 2
-                                )
-                            }%▼",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = if (!changeAmount.contains("-")) green else red
+                    if (currentPrice != 0.0){
+                        Column {
+                            Text(
+                                text = "$$currentPrice",
+                                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 18.sp)
                             )
-                        )
+                            Text(
+                                text = if (percentage > 0) ("+${String.format("%.2f", percentage).toFloat()}%▲") else "${
+                                    percentage
+                                }%▼",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = if (percentage > 0) green else red
+                                )
+                            )
+                        }
                     }
                 }
 
@@ -239,8 +231,7 @@ fun CompanyChart(
 
         if (!isLoading && intraDayInfoList.isNotEmpty()) {
             DayChart(intraDayInfoList = intraDayInfoList)
-        }
-        else {
+        } else {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -297,6 +288,13 @@ fun DayChart(
     intraDayInfoList: List<IntraDayInfo>
 ) {
     val steps = intraDayInfoList.size
+    val yPointsData = ArrayList<Float>()
+    val xPointsData = ArrayList<Float>()
+    intraDayInfoList.map {item->
+        yPointsData.add(item.close.toFloat())
+        xPointsData.add(AppUtils.getHourFromDateTime(item.date).toFloat())
+    }
+    yPointsData.sort()
     val pointsData = intraDayInfoList.map { intraDayInfo ->
         Point(
             AppUtils.getHourFromDateTime(intraDayInfo.date).toFloat(),
@@ -306,7 +304,7 @@ fun DayChart(
 
     val yAxisData = AxisData.Builder().steps(steps - 1).backgroundColor(Color.Transparent)
         .labelAndAxisLinePadding(20.dp).labelData { i ->
-            intraDayInfoList[i].close.toString()
+            yPointsData[i].toString()
         }.axisLineColor(blue).axisLabelColor(blue).axisLabelFontSize(10.sp).build()
 
     val xAxisData = AxisData.Builder().axisStepSize(100.dp).backgroundColor(Color.Transparent)

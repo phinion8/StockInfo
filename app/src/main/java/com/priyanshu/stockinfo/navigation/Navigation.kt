@@ -13,6 +13,7 @@ import com.priyanshu.stockinfo.ui.screens.home.HomeScreen
 import com.priyanshu.stockinfo.ui.screens.home.HomeScreenContent
 import com.priyanshu.stockinfo.ui.screens.onboarding.OnBoardingScreen
 import com.priyanshu.stockinfo.ui.screens.overview.CompanyOverviewScreen
+import com.priyanshu.stockinfo.ui.screens.search.SearchScreen
 import com.priyanshu.stockinfo.ui.screens.splash.SplashScreen
 import com.priyanshu.stockinfo.ui.screens.watchlist.WatchListScreen
 
@@ -63,25 +64,20 @@ fun HomeNavGraph(
             showBottomBar(true)
             WatchListScreen(innerPadding = innerPadding)
         }
+        composable(route = Screens.Search.route) {
+            showBottomBar(false)
+            SearchScreen(navController)
+        }
         composable(
-            route = Screens.CompanyOverview(null, null, null, null, null).buildRoute(),
+            route = Screens.CompanyOverview(null).buildRoute(),
             arguments = listOf(
                 navArgument("ticker") { type = NavType.StringType },
-                navArgument("price") { type = NavType.StringType },
-                navArgument("change_amount") { type = NavType.StringType },
-                navArgument("change_percentage") { type = NavType.StringType },
-                navArgument("volume") { type = NavType.StringType },
             ),
         ) { navBackStackEntry ->
             val ticker = navBackStackEntry.arguments?.getString("ticker")
-            val price = navBackStackEntry.arguments?.getString("price")
-            val changeAmount = navBackStackEntry.arguments?.getString("change_amount")
-            val changePercentage = navBackStackEntry.arguments?.getString("change_percentage")
-            val volume = navBackStackEntry.arguments?.getString("volume")
             showBottomBar(false)
-            if (ticker != null && price != null && changePercentage != null && changeAmount != null && volume != null) {
-                Log.d("SOMEISSUE", changePercentage)
-                CompanyOverviewScreen(ticker, price, changeAmount, changePercentage, volume)
+            if (ticker != null) {
+                CompanyOverviewScreen(ticker)
             }
         }
     }

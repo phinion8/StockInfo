@@ -20,6 +20,6 @@ fun WatchListScreen(
             .padding(start = 16.dp, end = 16.dp, bottom = innerPadding.calculateBottomPadding()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopAppBar(title = "Watchlist")
+        TopAppBar(title = "Watchlist", onSearchClick = {})
     }
 }

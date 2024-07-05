@@ -4,9 +4,11 @@ import android.util.Log
 import coil.network.HttpException
 import com.priyanshu.stockinfo.data.csv.CSVParser
 import com.priyanshu.stockinfo.data.csv.IntraDayParser
+import com.priyanshu.stockinfo.data.local.entities.SearchEntity
 import com.priyanshu.stockinfo.domain.models.CompanyOverview
 import com.priyanshu.stockinfo.domain.models.IntraDayInfo
 import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
+import com.priyanshu.stockinfo.domain.models.search.SearchItem
 import com.priyanshu.stockinfo.domain.repositories.LocalRepository
 import com.priyanshu.stockinfo.domain.repositories.PreferenceManager
 import com.priyanshu.stockinfo.domain.repositories.StockRepository
@@ -101,5 +103,66 @@ class StockUseCase @Inject constructor(
             )
 
         }.flowOn(Dispatchers.IO)
+
+    fun searchTicker(keyword: String): Flow<Resource<SearchItem>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = stockRepository.searchTicker(keyword)
+            if (response.Information != null) {
+                emit(Resource.Error(response.Information))
+            } else {
+                emit(Resource.Success(response))
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            emit(
+                Resource.Error(
+                    message = e.localizedMessage
+                )
+            )
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            emit(
+                Resource.Error(
+                    message = e.localizedMessage
+                )
+            )
+        }
+
+    }.catch {
+        it.printStackTrace()
+        emit(
+            Resource.Error(
+                message = it.localizedMessage
+            )
+        )
+    }.flowOn(Dispatchers.IO)
+
+    suspend fun addSearchEntity(searchEntity: SearchEntity) {
+        localRepository.addSearchEntity(searchEntity)
+    }
+
+    suspend fun getSearchEntityList(): Flow<Resource<List<SearchEntity>>> = flow {
+        emit(Resource.Loading())
+        try {
+
+            val result = localRepository.getSearchEntityList()
+            emit(Resource.Success(result))
+
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage))
+        }
+
+    }.catch {
+        it.printStackTrace()
+        emit(Resource.Error(it.localizedMessage))
+    }.flowOn(Dispatchers.IO)
+
+    suspend fun deleteFirstSearchEntity(){
+        localRepository.deleteFirstEntity()
+    }
+
+
+
 
 }

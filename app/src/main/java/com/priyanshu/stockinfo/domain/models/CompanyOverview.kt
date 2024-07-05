@@ -1,6 +1,12 @@
 package com.priyanshu.stockinfo.domain.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "company_overview_table")
 data class CompanyOverview(
+    @PrimaryKey
+    val Symbol: String,
     val `200DayMovingAverage`: String,
     val `50DayMovingAverage`: String,
     val `52WeekHigh`: String,
@@ -50,6 +56,5 @@ data class CompanyOverview(
     val RevenueTTM: String,
     val Sector: String,
     val SharesOutstanding: String,
-    val Symbol: String,
     val TrailingPE: String
 )

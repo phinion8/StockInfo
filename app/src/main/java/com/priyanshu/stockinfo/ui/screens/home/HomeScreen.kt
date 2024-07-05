@@ -130,7 +130,9 @@ fun HomeScreenContent(
             exit = shrinkVertically(),
             enter = expandVertically()
         ) {
-            TopAppBar(title = "Stocks")
+            TopAppBar(title = "Stocks", onSearchClick = {
+                navController.navigate(Screens.Search.route)
+            })
         }
 
         Spacer(modifier = Modifier.size(16.dp))
@@ -188,11 +190,7 @@ fun HomeScreenContent(
                                 onItemClick = {
                                     navController.navigate(
                                         Screens.CompanyOverview(
-                                            ticker = it.ticker,
-                                            price = it.price,
-                                            change_amount = it.change_amount,
-                                            change_percentage = it.change_percentage,
-                                            volume = it.volume
+                                            ticker = it.ticker
                                         ).buildRoute()
                                     )
                                 }
@@ -208,11 +206,7 @@ fun HomeScreenContent(
                                 onItemClick = {
                                     navController.navigate(
                                         Screens.CompanyOverview(
-                                            ticker = it.ticker,
-                                            price = it.price,
-                                            change_amount = it.change_amount,
-                                            change_percentage = it.change_percentage,
-                                            volume = it.volume
+                                            ticker = it.ticker
                                         ).buildRoute()
                                     )
                                 }
@@ -228,11 +222,7 @@ fun HomeScreenContent(
                                 onItemClick = {
                                     navController.navigate(
                                         Screens.CompanyOverview(
-                                            ticker = it.ticker,
-                                            price = it.price,
-                                            change_amount = it.change_amount,
-                                            change_percentage = it.change_percentage,
-                                            volume = it.volume
+                                            ticker = it.ticker
                                         ).buildRoute()
 
                                     )
