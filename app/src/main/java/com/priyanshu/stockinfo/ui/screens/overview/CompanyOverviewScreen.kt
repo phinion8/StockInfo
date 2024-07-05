@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +33,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.dataStore
@@ -60,9 +66,11 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.priyanshu.stockinfo.domain.models.IntraDayInfo
 import com.priyanshu.stockinfo.ui.components.LoadingDialog
 import com.priyanshu.stockinfo.ui.screens.home.components.ExpandableText
 import com.priyanshu.stockinfo.ui.screens.home.viewModel.HomeViewModel
+import com.priyanshu.stockinfo.ui.screens.overview.components.CompanyAbout
 import com.priyanshu.stockinfo.ui.screens.overview.viewModel.CompanyOverviewViewModel
 import com.priyanshu.stockinfo.ui.theme.blue
 import com.priyanshu.stockinfo.ui.theme.gray500
@@ -87,7 +95,12 @@ fun CompanyOverviewScreen(
         viewModel.getCompanyOverview("IBM")
     }
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getIntraDayInfoList("IBM")
+    }
+
     val companyOverview by viewModel.companyOverviewState.collectAsState()
+    val intraDayInfoList by viewModel.intraDayInfoListState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val scrollState = rememberScrollState()
@@ -171,9 +184,10 @@ fun CompanyOverviewScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                CompanyChart()
+                CompanyChart(intraDayInfoList = intraDayInfoList, isLoading = isLoading)
 
                 Spacer(modifier = Modifier.height(16.dp))
+
                 CompanyAbout(
                     title = "About ${companyOverview!!.Name}",
                     about = companyOverview!!.Description,
@@ -189,6 +203,7 @@ fun CompanyOverviewScreen(
                     profitMargin = companyOverview!!.ProfitMargin,
                     pbRatio = companyOverview!!.PriceToBookRatio
                 )
+
             }
 
         } else if (error != null) {
@@ -209,7 +224,10 @@ fun CompanyOverviewScreen(
 }
 
 @Composable
-fun CompanyChart() {
+fun CompanyChart(
+    isLoading: Boolean,
+    intraDayInfoList: List<IntraDayInfo>
+) {
 
     Column(
         modifier = Modifier
@@ -219,8 +237,18 @@ fun CompanyChart() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        DayChart()
-
+        if (!isLoading && intraDayInfoList.isNotEmpty()) {
+            DayChart(intraDayInfoList = intraDayInfoList)
+        }
+        else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp), contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = blue)
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -231,16 +259,11 @@ fun CompanyChart() {
             horizontalArrangement = Arrangement.Center
         ) {
             ChatItemTab(title = "1D", selected = true)
-            ChatItemTab(title = "1W", selected = false)
-            ChatItemTab(title = "1M", selected = false)
-            ChatItemTab(title = "3M", selected = false)
-            ChatItemTab(title = "6M", selected = false)
-            ChatItemTab(title = "1Y", selected = false)
         }
-
     }
 
 }
+
 
 @Composable
 fun ChatItemTab(
@@ -259,7 +282,10 @@ fun ChatItemTab(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium.copy(if (selected) white else primaryColor, textAlign = TextAlign.Center)
+            style = MaterialTheme.typography.bodyMedium.copy(
+                if (selected) white else primaryColor,
+                textAlign = TextAlign.Center
+            )
         )
 
     }
@@ -267,25 +293,27 @@ fun ChatItemTab(
 }
 
 @Composable
-fun DayChart(modifier: Modifier = Modifier) {
-    val steps = 5
-    val pointsData = listOf(
-        Point(0f, 40f),
-        Point(1f, 90f),
-        Point(2f, 0f),
-        Point(3f, 60f),
-        Point(4f, 10f),
-    )
+fun DayChart(
+    intraDayInfoList: List<IntraDayInfo>
+) {
+    val steps = intraDayInfoList.size
+    val pointsData = intraDayInfoList.map { intraDayInfo ->
+        Point(
+            AppUtils.getHourFromDateTime(intraDayInfo.date).toFloat(),
+            intraDayInfo.close.toFloat(),
+        )
+    }
 
-    val yAxisData = AxisData.Builder().steps(steps).backgroundColor(Color.Transparent)
+    val yAxisData = AxisData.Builder().steps(steps - 1).backgroundColor(Color.Transparent)
         .labelAndAxisLinePadding(20.dp).labelData { i ->
-            val yScale = 100 / steps
-            (i * yScale).toString()
-        }.axisLineColor(blue).axisLabelColor(blue).build()
+            intraDayInfoList[i].close.toString()
+        }.axisLineColor(blue).axisLabelColor(blue).axisLabelFontSize(10.sp).build()
 
     val xAxisData = AxisData.Builder().axisStepSize(100.dp).backgroundColor(Color.Transparent)
-        .steps(pointsData.size - 1).labelData { i -> i.toString() }.labelAndAxisLinePadding(15.dp)
-        .axisLineColor(blue).axisLabelColor(blue).typeFace(Typeface.MONOSPACE).build()
+        .steps(pointsData.size - 1).labelData { i ->
+            intraDayInfoList[i].date.hour.toString() + ":00"
+        }.labelAndAxisLinePadding(15.dp)
+        .axisLineColor(blue).axisLabelColor(blue).axisLabelFontSize(10.sp).build()
 
 
     val lineChartData = LineChartData(
@@ -293,9 +321,13 @@ fun DayChart(modifier: Modifier = Modifier) {
             lines = listOf(
                 Line(
                     dataPoints = pointsData,
-                    LineStyle(lineType = LineType.SmoothCurve(isDotted = false), color = blue),
-                    intersectionPoint = IntersectionPoint(color = blue),
-                    SelectionHighlightPoint(color = blue),
+                    LineStyle(
+                        lineType = LineType.SmoothCurve(isDotted = false),
+                        color = blue,
+                        width = 4f
+                    ),
+                    intersectionPoint = IntersectionPoint(color = blue, radius = 2.dp),
+                    SelectionHighlightPoint(color = blue, radius = 2.dp),
                     ShadowUnderLine(
                         alpha = 0.5f, brush = Brush.verticalGradient(
                             colors = listOf(
@@ -323,216 +355,8 @@ fun DayChart(modifier: Modifier = Modifier) {
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .fillMaxWidth()
-            .height(250.dp)
+            .height(300.dp)
             .background(Color.Transparent, shape = RoundedCornerShape(16.dp)),
         lineChartData = lineChartData
     )
-}
-
-@Composable
-fun CompanyAbout(
-    title: String,
-    about: String,
-    industry: String,
-    sector: String,
-    `52WeekLow`: String,
-    `52WeekHigh`: String,
-    currentPrice: String,
-    marketCap: String,
-    peRatio: String,
-    beta: String,
-    dividendYield: String,
-    profitMargin: String,
-    pbRatio: String
-) {
-    Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .fillMaxWidth()
-            .border(width = 1.dp, color = lightGray, shape = RoundedCornerShape(16.dp))
-            .padding(bottom = 8.dp)
-    ) {
-
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp),
-            text = title,
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        HorizontalDivider(thickness = 1.dp, modifier = Modifier.fillMaxWidth(), color = lightGray)
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ExpandableText(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = about,
-                textStyle = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 13.sp,
-                    lineHeight = 24.sp
-                ),
-                readMoreTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    primaryColor,
-                    textAlign = TextAlign.End,
-                    fontWeight = FontWeight.Bold
-                ),
-                maxLine = 5,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Column {
-                ItemChip(title = industry)
-                Spacer(modifier = Modifier.height(16.dp))
-                ItemChip(title = sector)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                Text(
-                    text = "52-Week Low",
-                    style = MaterialTheme.typography.bodySmall.copy(textAlign = TextAlign.Start)
-                )
-
-                Text(
-                    text = "52-Week High",
-                    style = MaterialTheme.typography.bodySmall.copy(textAlign = TextAlign.End)
-                )
-
-            }
-
-
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                Text(
-                    text = `52WeekLow`,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold, fontSize = 14.sp
-                    )
-                )
-
-                Text(
-                    text = `52WeekHigh`,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp
-                    )
-                )
-
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            val price = currentPrice.toFloat()
-            val high = `52WeekHigh`.toFloat()
-            val low = `52WeekLow`.toFloat()
-
-            val total = high + low
-            val plot = (price / total)
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(plot),
-                text = "${currentPrice}\n▼",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    lineHeight = 16.sp,
-                    textAlign = TextAlign.End,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = lightGray
-            )
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                AppUtils.formatMarketCap(marketCap)
-                    ?.let { InfoItem(title = "Market Cap", value = it) }
-                InfoItem(title = "P/E Ratio", value = peRatio)
-                InfoItem(title = "Beta", value = beta)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                InfoItem(title = "Dividend Yield", value = dividendYield)
-                InfoItem(title = "Profit Margin", value = profitMargin)
-                InfoItem(title = "P/B Ratio", value = pbRatio)
-            }
-        }
-
-
-    }
-}
-
-@Composable
-fun InfoItem(
-    title: String,
-    value: String
-) {
-
-    Column(
-        modifier = Modifier.fillMaxWidth(0.25f),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall.copy(color = lightGray)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            modifier = Modifier.padding(start = 2.dp),
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-        )
-    }
-
-}
-
-@Composable
-fun ItemChip(
-    title: String
-) {
-    Box(
-        modifier = Modifier
-            .background(shape = CircleShape, color = blue)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = title, style = MaterialTheme.typography.bodyMedium.copy(color = white))
-    }
 }

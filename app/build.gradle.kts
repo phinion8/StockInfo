@@ -100,4 +100,7 @@ dependencies {
 
     //YCharts
     implementation (libs.ycharts)
+
+    // OpenCSV
+    implementation (libs.opencsv)
 }

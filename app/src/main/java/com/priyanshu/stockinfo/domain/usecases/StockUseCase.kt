@@ -2,7 +2,10 @@ package com.priyanshu.stockinfo.domain.usecases
 
 import android.util.Log
 import coil.network.HttpException
+import com.priyanshu.stockinfo.data.csv.CSVParser
+import com.priyanshu.stockinfo.data.csv.IntraDayParser
 import com.priyanshu.stockinfo.domain.models.CompanyOverview
+import com.priyanshu.stockinfo.domain.models.IntraDayInfo
 import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
 import com.priyanshu.stockinfo.domain.repositories.LocalRepository
 import com.priyanshu.stockinfo.domain.repositories.PreferenceManager
@@ -22,21 +25,22 @@ import javax.inject.Inject
 class StockUseCase @Inject constructor(
     private val stockRepository: StockRepository,
     private val localRepository: LocalRepository,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
+    private val intraDayParser: CSVParser<IntraDayInfo>
 ) {
 
     fun getTopGainersAndLosers(): Flow<Resource<TopGainerAndLosers>> = flow {
         emit(Resource.Loading())
         try {
             val cacheExpiry = Constants.CACHE_EXPIRY_IN_MINUTES * 60 * 1000
-            preferenceManager.getCachedTime().collect{time->
-                if (System.currentTimeMillis() > time + cacheExpiry){
+            preferenceManager.getCachedTime().collect { time ->
+                if (System.currentTimeMillis() > time + cacheExpiry) {
                     val topGainersAndLosers = stockRepository.getTopGainersAndLosers()
                     localRepository.clearTopGainersLosers()
                     localRepository.addTopGainersAndLosers(topGainersAndLosers)
                     preferenceManager.saveCachedTime(System.currentTimeMillis())
                     emit(Resource.Success(topGainersAndLosers))
-                }else{
+                } else {
                     val cachedLocalData = localRepository.getTopGainersAndLosers()
                     emit(Resource.Success(cachedLocalData))
                 }
@@ -44,7 +48,7 @@ class StockUseCase @Inject constructor(
         } catch (e: IOException) {
             val cachedLocalData = localRepository.getTopGainersAndLosers()
             emit(Resource.Success(cachedLocalData))
-        } catch (e: HttpException){
+        } catch (e: HttpException) {
             val cachedLocalData = localRepository.getTopGainersAndLosers()
             emit(Resource.Success(cachedLocalData))
         }
@@ -63,5 +67,39 @@ class StockUseCase @Inject constructor(
     }.catch {
         emit(Resource.Error(it.message))
     }.flowOn(Dispatchers.IO)
+
+    fun getIntraDayInfoList(ticker: String): Flow<Resource<List<IntraDayInfo>>> =
+        flow {
+            emit(Resource.Loading())
+            try {
+                val response = stockRepository.getIntraDayInfo(ticker)
+                Log.d("CSVRESULT", "response ${response.byteStream()}")
+                val results = intraDayParser.parse(response.byteStream())
+                Log.d("CSVRESULT", results.toString())
+                emit(Resource.Success(results))
+            } catch (e: IOException) {
+                e.printStackTrace()
+                emit(
+                    Resource.Error(
+                        message = e.localizedMessage
+                    )
+                )
+            } catch (e: retrofit2.HttpException) {
+                e.printStackTrace()
+                emit(
+                    Resource.Error(
+                        message = e.localizedMessage
+                    )
+                )
+            }
+        }.catch {
+            it.printStackTrace()
+            emit(
+                Resource.Error(
+                    message = it.localizedMessage
+                )
+            )
+
+        }.flowOn(Dispatchers.IO)
 
 }

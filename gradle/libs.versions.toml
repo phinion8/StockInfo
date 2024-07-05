@@ -11,6 +11,7 @@ composeBom = "2024.04.01"
 hiltAndroid = "2.49"
 hiltNavigationCompose = "1.2.0"
 coilCompose = "2.2.2"
+opencsv = "5.5.2"
 playServicesAuth = "21.2.0"
 retrofit = "2.9.0"
 datastorePreferences = "1.0.0"
@@ -44,6 +45,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsv" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }

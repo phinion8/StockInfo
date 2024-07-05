@@ -2,17 +2,21 @@ package com.priyanshu.stockinfo.di
 
 import android.content.Context
 import androidx.room.Room
+import com.priyanshu.stockinfo.data.csv.CSVParser
+import com.priyanshu.stockinfo.data.csv.IntraDayParser
 import com.priyanshu.stockinfo.data.local.dao.StockDao
 import com.priyanshu.stockinfo.data.local.database.StockDatabase
 import com.priyanshu.stockinfo.data.remote.StockApi
 import com.priyanshu.stockinfo.data.repositories.LocalRepositoryImpl
 import com.priyanshu.stockinfo.data.repositories.PreferenceManagerImpl
 import com.priyanshu.stockinfo.data.repositories.StockRepositoryImpl
+import com.priyanshu.stockinfo.domain.models.IntraDayInfo
 import com.priyanshu.stockinfo.domain.repositories.LocalRepository
 import com.priyanshu.stockinfo.domain.repositories.PreferenceManager
 import com.priyanshu.stockinfo.domain.repositories.StockRepository
 import com.priyanshu.stockinfo.domain.usecases.StockUseCase
 import com.priyanshu.stockinfo.utils.Constants
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -80,6 +84,13 @@ object AppModule {
     fun provideStockUseCase(
         stockRepository: StockRepository,
         localRepository: LocalRepository,
-        preferenceManager: PreferenceManager
-    ) = StockUseCase(stockRepository, localRepository, preferenceManager)
+        preferenceManager: PreferenceManager,
+        intaDayParser: IntraDayParser
+    ) = StockUseCase(stockRepository, localRepository, preferenceManager,intaDayParser)
+
+    @Provides
+    @Singleton
+    fun provideIntraDayParser(): CSVParser<IntraDayInfo> {
+        return IntraDayParser()
+    }
 }

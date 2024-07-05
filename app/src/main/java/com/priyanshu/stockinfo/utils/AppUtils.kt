@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import java.time.LocalDateTime
 
 fun Context.showToast(message: String){
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -44,5 +45,9 @@ object AppUtils{
             }
         }
         return null
+    }
+
+    fun getHourFromDateTime(dateTime: LocalDateTime): Int {
+        return dateTime.hour
     }
 }
