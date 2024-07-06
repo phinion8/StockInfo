@@ -2,7 +2,7 @@
 
 [Watch App Overview Video](https://drive.google.com/file/d/18BJJ-Bpao5YjYEumclnhpqHLVM-N0J1A/view?usp=sharing)<br/>
 
-[Download APK](https://drive.google.com/file/d/1rna3FrbMo9FAzPOpu2m4Vt0b2au7525P/view?usp=sharing)
+[Download APK](https://drive.google.com/file/d/10ExknOS1vg47VK99NWuJwqyJwalMMigq/view?usp=sharing)
 
 ## Overview
 
