@@ -81,8 +81,63 @@ class StockUseCase @Inject constructor(
                 Log.d("gerComanyOverview", "company overview from local is not null but expired")
                 val companyOverview = stockRepository.getCompanyOverview(ticker)
                 if (companyOverview != null) {
-                    localRepository.deleteCompanyOverviewFromLocal(companyOverview.Symbol)
-                    localRepository.addCompanyOverviewToLocal(companyOverview.copy(localCreationTime = System.currentTimeMillis()))
+                    companyOverview.Symbol?.let { localRepository.deleteCompanyOverviewFromLocal(it) }
+                    localRepository.addCompanyOverviewToLocal(
+                        CompanyOverview(
+                            Symbol = companyOverview.Symbol,
+                            Name = companyOverview.Name,
+                            Description = companyOverview.Description,
+                            Exchange = companyOverview.Exchange,
+                            Industry = companyOverview.Industry,
+                            Sector = companyOverview.Sector,
+                            MarketCapitalization = companyOverview.MarketCapitalization,
+                            PERatio = companyOverview.PERatio,
+                            Beta = companyOverview.Beta,
+                            DividendYield = companyOverview.DividendYield,
+                            ProfitMargin = companyOverview.ProfitMargin,
+                            PriceToBookRatio = companyOverview.PriceToBookRatio,
+                            fiftyTwoWeeksLow = companyOverview.fiftyTwoWeeksLow,
+                            fiftyTwoWeeksHigh = companyOverview.fiftyTwoWeeksHigh,
+                            localCreationTime = System.currentTimeMillis(),
+                            AssetType = companyOverview.AssetType,
+                            Address = companyOverview.Address,
+                            AnalystRatingBuy = companyOverview.AnalystRatingBuy,
+                            AnalystRatingHold = companyOverview.AnalystRatingHold,
+                            AnalystRatingSell = companyOverview.AnalystRatingSell,
+                            AnalystRatingStrongBuy = companyOverview.AnalystRatingStrongBuy,
+                            AnalystRatingStrongSell = companyOverview.AnalystRatingStrongSell,
+                            AnalystTargetPrice = companyOverview.AnalystTargetPrice,
+                            BookValue = companyOverview.BookValue,
+                            CIK = companyOverview.CIK,
+                            Country = companyOverview.Country,
+                            Currency = companyOverview.Currency,
+                            DilutedEPSTTM = companyOverview.DilutedEPSTTM,
+                            DividendDate = companyOverview.DividendDate,
+                            DividendPerShare = companyOverview.DividendPerShare,
+                            EBITDA = companyOverview.EBITDA,
+                            EPS = companyOverview.EPS,
+                            EVToEBITDA = companyOverview.EVToEBITDA,
+                            EVToRevenue = companyOverview.EVToRevenue,
+                            ExDividendDate = companyOverview.ExDividendDate,
+                            FiscalYearEnd = companyOverview.FiscalYearEnd,
+                            ForwardPE = companyOverview.ForwardPE,
+                            GrossProfitTTM = companyOverview.GrossProfitTTM,
+                            LatestQuarter = companyOverview.LatestQuarter,
+                            OperatingMarginTTM = companyOverview.OperatingMarginTTM,
+                            PEGRatio = companyOverview.PEGRatio,
+                            PriceToSalesRatioTTM = companyOverview.PriceToSalesRatioTTM,
+                            QuarterlyEarningsGrowthYOY = companyOverview.QuarterlyEarningsGrowthYOY,
+                            QuarterlyRevenueGrowthYOY = companyOverview.QuarterlyRevenueGrowthYOY,
+                            ReturnOnAssetsTTM = companyOverview.ReturnOnAssetsTTM,
+                            ReturnOnEquityTTM = companyOverview.ReturnOnEquityTTM,
+                            RevenuePerShareTTM = companyOverview.RevenuePerShareTTM,
+                            RevenueTTM = companyOverview.RevenueTTM,
+                            SharesOutstanding = companyOverview.SharesOutstanding,
+                            TrailingPE = companyOverview.TrailingPE,
+                            twoHundredDayMovingAverage = companyOverview.twoHundredDayMovingAverage,
+                            fiftyDayMovingAverage = companyOverview.fiftyDayMovingAverage,
+                        )
+                    )
                     val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
                     emit(Resource.Success(overViewLocal))
                 } else if (information != null) {
@@ -101,7 +156,62 @@ class StockUseCase @Inject constructor(
                 val companyOverview = stockRepository.getCompanyOverview(ticker)
                 Log.d("gerComanyOverview", "calling api")
                 if (companyOverview != null && companyOverview.Information == null) {
-                    localRepository.addCompanyOverviewToLocal(companyOverview.copy(localCreationTime = System.currentTimeMillis()))
+                    localRepository.addCompanyOverviewToLocal(
+                        CompanyOverview(
+                            Symbol = companyOverview.Symbol,
+                            Name = companyOverview.Name,
+                            Description = companyOverview.Description,
+                            Exchange = companyOverview.Exchange,
+                            Industry = companyOverview.Industry,
+                            Sector = companyOverview.Sector,
+                            MarketCapitalization = companyOverview.MarketCapitalization,
+                            PERatio = companyOverview.PERatio,
+                            Beta = companyOverview.Beta,
+                            DividendYield = companyOverview.DividendYield,
+                            ProfitMargin = companyOverview.ProfitMargin,
+                            PriceToBookRatio = companyOverview.PriceToBookRatio,
+                            fiftyTwoWeeksLow = companyOverview.fiftyTwoWeeksLow,
+                            fiftyTwoWeeksHigh = companyOverview.fiftyTwoWeeksHigh,
+                            localCreationTime = System.currentTimeMillis(),
+                            AssetType = companyOverview.AssetType,
+                            Address = companyOverview.Address,
+                            AnalystRatingBuy = companyOverview.AnalystRatingBuy,
+                            AnalystRatingHold = companyOverview.AnalystRatingHold,
+                            AnalystRatingSell = companyOverview.AnalystRatingSell,
+                            AnalystRatingStrongBuy = companyOverview.AnalystRatingStrongBuy,
+                            AnalystRatingStrongSell = companyOverview.AnalystRatingStrongSell,
+                            AnalystTargetPrice = companyOverview.AnalystTargetPrice,
+                            BookValue = companyOverview.BookValue,
+                            CIK = companyOverview.CIK,
+                            Country = companyOverview.Country,
+                            Currency = companyOverview.Currency,
+                            DilutedEPSTTM = companyOverview.DilutedEPSTTM,
+                            DividendDate = companyOverview.DividendDate,
+                            DividendPerShare = companyOverview.DividendPerShare,
+                            EBITDA = companyOverview.EBITDA,
+                            EPS = companyOverview.EPS,
+                            EVToEBITDA = companyOverview.EVToEBITDA,
+                            EVToRevenue = companyOverview.EVToRevenue,
+                            ExDividendDate = companyOverview.ExDividendDate,
+                            FiscalYearEnd = companyOverview.FiscalYearEnd,
+                            ForwardPE = companyOverview.ForwardPE,
+                            GrossProfitTTM = companyOverview.GrossProfitTTM,
+                            LatestQuarter = companyOverview.LatestQuarter,
+                            OperatingMarginTTM = companyOverview.OperatingMarginTTM,
+                            PEGRatio = companyOverview.PEGRatio,
+                            PriceToSalesRatioTTM = companyOverview.PriceToSalesRatioTTM,
+                            QuarterlyEarningsGrowthYOY = companyOverview.QuarterlyEarningsGrowthYOY,
+                            QuarterlyRevenueGrowthYOY = companyOverview.QuarterlyRevenueGrowthYOY,
+                            ReturnOnAssetsTTM = companyOverview.ReturnOnAssetsTTM,
+                            ReturnOnEquityTTM = companyOverview.ReturnOnEquityTTM,
+                            RevenuePerShareTTM = companyOverview.RevenuePerShareTTM,
+                            RevenueTTM = companyOverview.RevenueTTM,
+                            SharesOutstanding = companyOverview.SharesOutstanding,
+                            TrailingPE = companyOverview.TrailingPE,
+                            twoHundredDayMovingAverage = companyOverview.twoHundredDayMovingAverage,
+                            fiftyDayMovingAverage = companyOverview.fiftyDayMovingAverage,
+                        )
+                    )
                     val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
                     emit(Resource.Success(overViewLocal))
                 } else if (companyOverview?.Information != null) {

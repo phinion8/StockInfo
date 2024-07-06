@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,19 +55,19 @@ fun CompanyAbout(
 ) {
 
     val price by remember {
-        mutableFloatStateOf(currentPrice.toFloat())
+        mutableStateOf(currentPrice.toFloat())
     }
     val high by remember {
-        mutableFloatStateOf(`52WeekHigh`.toFloat())
+        mutableStateOf(`52WeekHigh`.toFloat())
     }
     val low by remember {
-        mutableFloatStateOf(`52WeekLow`.toFloat())
+        mutableStateOf(`52WeekLow`.toFloat())
     }
     val total by remember {
-        derivedStateOf { low + high }
+        mutableStateOf(low + high)
     }
     val plot by remember {
-        derivedStateOf { price / total }
+        mutableStateOf(price / total)
     }
 
     Column(

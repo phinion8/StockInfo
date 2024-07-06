@@ -220,23 +220,27 @@ fun CompanyOverviewScreen(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             companyOverview?.let {
-                                Text(
-                                    text = it.Name,
-                                    style = MaterialTheme.typography.headlineLarge.copy(
-                                        fontSize = 18.sp,
-                                        lineHeight = 24.sp
+                                it.Name?.let { it1 ->
+                                    Text(
+                                        text = it1,
+                                        style = MaterialTheme.typography.headlineLarge.copy(
+                                            fontSize = 18.sp,
+                                            lineHeight = 24.sp
+                                        )
                                     )
-                                )
+                                }
                             }
                             Text(
                                 text = "(${companyOverview?.Symbol}) ${companyOverview?.AssetType}",
                                 style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
                             )
                             companyOverview?.let {
-                                Text(
-                                    text = it.Exchange,
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
-                                )
+                                it.Exchange?.let { it1 ->
+                                    Text(
+                                        text = it1,
+                                        style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
+                                    )
+                                }
                             }
                         }
 
@@ -270,21 +274,43 @@ fun CompanyOverviewScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    CompanyAbout(
-                        title = "About ${companyOverview!!.Name}",
-                        about = companyOverview!!.Description,
-                        industry = companyOverview!!.Industry,
-                        sector = companyOverview!!.Sector,
-                        `52WeekLow` = companyOverview!!.fiftyTwoWeeksLow,
-                        `52WeekHigh` = companyOverview!!.fiftyTwoWeeksHigh,
-                        currentPrice = currentPrice.toString(),
-                        marketCap = companyOverview!!.MarketCapitalization,
-                        peRatio = companyOverview!!.PERatio,
-                        beta = companyOverview!!.Beta,
-                        dividendYield = companyOverview!!.DividendYield,
-                        profitMargin = companyOverview!!.ProfitMargin,
-                        pbRatio = companyOverview!!.PriceToBookRatio
-                    )
+                    companyOverview!!.Description?.let {
+                        companyOverview!!.Industry?.let { it1 ->
+                            companyOverview!!.Sector?.let { it2 ->
+                                companyOverview!!.fiftyTwoWeeksLow?.let { it3 ->
+                                    companyOverview!!.fiftyTwoWeeksHigh?.let { it4 ->
+                                        companyOverview!!.MarketCapitalization?.let { it5 ->
+                                            companyOverview!!.PERatio?.let { it6 ->
+                                                companyOverview!!.Beta?.let { it7 ->
+                                                    companyOverview!!.DividendYield?.let { it8 ->
+                                                        companyOverview!!.ProfitMargin?.let { it9 ->
+                                                            companyOverview!!.PriceToBookRatio?.let { it10 ->
+                                                                CompanyAbout(
+                                                                    title = "About ${companyOverview!!.Name}",
+                                                                    about = it,
+                                                                    industry = it1,
+                                                                    sector = it2,
+                                                                    `52WeekLow` = it3,
+                                                                    `52WeekHigh` = it4,
+                                                                    currentPrice = currentPrice.toString(),
+                                                                    marketCap = it5,
+                                                                    peRatio = it6,
+                                                                    beta = it7,
+                                                                    dividendYield = it8,
+                                                                    profitMargin = it9,
+                                                                    pbRatio = it10
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                 }else if (isNetworkConnected && companyOverview == null){
                     ErrorLayout(error = "Company data not available")
