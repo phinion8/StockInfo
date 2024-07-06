@@ -38,3 +38,22 @@ The Stock Info App is a comprehensive tool for searching stock market related in
 
 ### Dark Mode and Light Mode
 - Toggle between dark mode and light mode to suit your preferences.
+
+## Screenshots
+![Splash](screenshots/screenshot_1_dark.png)
+![Onboarding](screenshots/screenshot_2_dark.png)
+![Top Gainers](screenshots/screenshot_3_dark.png)
+![Top Losers](screenshots/screenshot_4_dark.png)
+![Most Traded](screenshots/screenshot_5_dark.png)
+![Search](screenshots/screenshot_6_dark.png)
+![Search](screenshots/screenshot_7_dark.png)
+![Search](screenshots/screenshot_6_dark.png)
+![Search](screenshots/screenshot_8_dark.png)
+![Search](screenshots/screenshot_9_dark.png)
+![Company Overview](screenshots/screenshot_10_dark.png)
+![Company Overview](screenshots/screenshot_11_dark.png)
+![ompany Overview](screenshots/screenshot_12_dark.png)
+![Watchlist](screenshots/screenshot_13_dark.png)
+![Recent Search](screenshots/screenshot_14_dark.png)
+![No Internet](screenshots/screenshot_15_dark.png)
+
