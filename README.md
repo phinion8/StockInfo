@@ -39,21 +39,22 @@ The Stock Info App is a comprehensive tool for searching stock market related in
 ### Dark Mode and Light Mode
 - Toggle between dark mode and light mode to suit your preferences.
 
-## Screenshots
-![Splash](screenshots/screenshot_1_dark.png)
-![Onboarding](screenshots/screenshot_2_dark.png)
-![Top Gainers](screenshots/screenshot_3_dark.png)
-![Top Losers](screenshots/screenshot_4_dark.png)
-![Most Traded](screenshots/screenshot_5_dark.png)
-![Search](screenshots/screenshot_6_dark.png)
-![Search](screenshots/screenshot_7_dark.png)
-![Search](screenshots/screenshot_6_dark.png)
-![Search](screenshots/screenshot_8_dark.png)
-![Search](screenshots/screenshot_9_dark.png)
-![Company Overview](screenshots/screenshot_10_dark.png)
-![Company Overview](screenshots/screenshot_11_dark.png)
-![ompany Overview](screenshots/screenshot_12_dark.png)
-![Watchlist](screenshots/screenshot_13_dark.png)
-![Recent Search](screenshots/screenshot_14_dark.png)
-![No Internet](screenshots/screenshot_15_dark.png)
+<p align="center">
+  <img src="screenshots/screenshot_1_dark.png" alt="Splash" width="200"/>
+  <img src="screenshots/screenshot_2_dark.png" alt="Onboarding" width="200"/>
+  <img src="screenshots/screenshot_3_dark.png" alt="Top Gainers" width="200"/>
+  <img src="screenshots/screenshot_4_dark.png" alt="Top Losers" width="200"/>
+  <img src="screenshots/screenshot_5_dark.png" alt="Most Traded" width="200"/>
+  <img src="screenshots/screenshot_6_dark.png" alt="Search" width="200"/>
+  <img src="screenshots/screenshot_7_dark.png" alt="Search" width="200"/>
+  <img src="screenshots/screenshot_6_dark.png" alt="Search" width="200"/>
+  <img src="screenshots/screenshot_8_dark.png" alt="Search" width="200"/>
+  <img src="screenshots/screenshot_9_dark.png" alt="Search" width="200"/>
+  <img src="screenshots/screenshot_10_dark.png" alt="Company Overview" width="200"/>
+  <img src="screenshots/screenshot_11_dark.png" alt="Company Overview" width="200"/>
+  <img src="screenshots/screenshot_12_dark.png" alt="Company Overview" width="200"/>
+  <img src="screenshots/screenshot_13_dark.png" alt="Watchlist" width="200"/>
+  <img src="screenshots/screenshot_14_dark.png" alt="Recent Search" width="200"/>
+  <img src="screenshots/screenshot_15_dark.png" alt="No Internet" width="200"/>
+</p>
 
