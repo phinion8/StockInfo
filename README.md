@@ -1,5 +1,8 @@
 # Stock Info App
 
+[Click Here To Watch App Overview Video](https://drive.google.com/file/d/18BJJ-Bpao5YjYEumclnhpqHLVM-N0J1A/view?usp=sharing)
+[Click Here To Download The App](https://drive.google.com/file/d/1RHm6mAgU2dss24EvBtlHbTu5aOj09OZw/view?usp=sharing)
+
 ## Overview
 
 The Stock Info App is a comprehensive tool for searching stock market related information. It provides real-time data on top gainers, top losers, and most traded stocks. The app also features a customizable watchlist, search functionality, and offline caching to ensure you have access to critical information even without an internet connection. Additionally, the app supports both dark mode and light mode for a seamless user experience.
