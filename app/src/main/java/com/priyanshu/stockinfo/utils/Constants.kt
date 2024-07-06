@@ -7,4 +7,5 @@ object Constants {
     const val STOCK_DATABASE = "stock_database"
     const val CACHE_EXPIRY_IN_MINUTES = 30
     const val MINIMUM_LOCAL_SEARCH_ITEM_SIZE = 10
+    const val DEMO_API_KEY = "XC8RHUNZWQSAGE5P"
 }

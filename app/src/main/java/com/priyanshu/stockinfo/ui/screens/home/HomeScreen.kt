@@ -26,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -57,6 +58,7 @@ import com.priyanshu.stockinfo.ui.screens.home.viewModel.HomeViewModel
 import com.priyanshu.stockinfo.ui.theme.gray500
 import com.priyanshu.stockinfo.ui.theme.lightGray
 import com.priyanshu.stockinfo.ui.theme.secondaryColor
+import com.priyanshu.stockinfo.utils.NetworkConnectivityObserver
 import com.priyanshu.stockinfo.utils.isScrollingUp
 import kotlinx.coroutines.launch
 
@@ -69,6 +71,17 @@ fun HomeScreen(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    NetworkConnectivityObserver {isConnected->
+
+        if (!isConnected) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("No internet connection.", actionLabel = "OK", duration = SnackbarDuration.Long)
+            }
+        }
+
+    }
 
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {

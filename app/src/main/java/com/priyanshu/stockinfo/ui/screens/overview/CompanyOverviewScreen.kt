@@ -73,6 +73,7 @@ import com.priyanshu.stockinfo.ui.theme.primaryColor
 import com.priyanshu.stockinfo.ui.theme.red
 import com.priyanshu.stockinfo.ui.theme.white
 import com.priyanshu.stockinfo.utils.AppUtils
+import com.priyanshu.stockinfo.utils.NetworkConnectivityObserver
 import kotlinx.coroutines.launch
 
 @Composable
@@ -104,6 +105,25 @@ fun CompanyOverviewScreen(
     val coroutineScope = rememberCoroutineScope()
     val graphLoading by viewModel.isGraphLoading.collectAsState()
     val isItemInWaitlist by viewModel.isItemInWaitlist.collectAsState()
+
+    var isNetworkConnected by remember {
+        mutableStateOf(true)
+    }
+
+    NetworkConnectivityObserver { isConnected ->
+        isNetworkConnected = isConnected
+        if (!isConnected) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    "No internet connection.",
+                    actionLabel = "OK",
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+
+    }
+
     var currentPrice by remember {
         mutableStateOf(0.0)
     }
@@ -153,34 +173,36 @@ fun CompanyOverviewScreen(
                     tint = primaryColor
                 )
 
-                Icon(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            if (isItemInWaitlist) {
-                                viewModel.deleteWaitlistEntity(ticker)
-                                viewModel.updateWaitlistState(false)
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        "Item removed from waitlist",
-                                        duration = SnackbarDuration.Short
-                                    )
+                if (!isLoading && error == null && companyOverview != null) {
+                    Icon(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                if (isItemInWaitlist) {
+                                    viewModel.deleteWaitlistEntity(ticker)
+                                    viewModel.updateWaitlistState(false)
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Item removed from waitlist",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                } else {
+                                    viewModel.saveItemInWaitlist(ticker)
+                                    viewModel.updateWaitlistState(true)
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Item added to waitlist",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
                                 }
-                            } else {
-                                viewModel.saveItemInWaitlist(ticker)
-                                viewModel.updateWaitlistState(true)
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        "Item added to waitlist",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }
-                        },
-                    painter = painterResource(id = if (isItemInWaitlist) R.drawable.ic_bookmark_filled  else R.drawable.ic_bookmark_outlined),
-                    contentDescription = "Waitlist button",
-                    tint = green
-                )
+                            },
+                        painter = painterResource(id = if (isItemInWaitlist) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outlined),
+                        contentDescription = "Waitlist button",
+                        tint = green
+                    )
+                }
 
             }
 
@@ -264,6 +286,8 @@ fun CompanyOverviewScreen(
                         pbRatio = companyOverview!!.PriceToBookRatio
                     )
 
+                }else if (isNetworkConnected && companyOverview == null){
+                    ErrorLayout(error = "Company data not available")
                 }
 
             }
@@ -271,6 +295,8 @@ fun CompanyOverviewScreen(
         }
         if (error != null) {
             ErrorLayout(error = error)
+        }else if (!isNetworkConnected && companyOverview == null){
+            ErrorLayout(error = "No internet connection.")
         }
     }
 
@@ -368,9 +394,9 @@ fun DayChart(
 
     val xAxisData = AxisData.Builder().axisStepSize(100.dp).backgroundColor(Color.Transparent)
         .steps(pointsData.size - 1).labelData { i ->
-            if (i < intraDayInfoList.size){
+            if (i < intraDayInfoList.size) {
                 intraDayInfoList[i].hour.toString() + ":00"
-            }else{
+            } else {
                 "00"
             }
         }.labelAndAxisLinePadding(15.dp)

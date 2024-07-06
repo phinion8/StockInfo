@@ -73,14 +73,26 @@ class StockUseCase @Inject constructor(
             val information = companyOverviewFromLocal?.Information
 
             if (companyOverviewFromLocal != null && System.currentTimeMillis() > companyOverviewFromLocal.localCreationTime + cacheExpiry) {
+                Log.d("gerComanyOverview", "current time -> ${System.currentTimeMillis()}")
+                Log.d(
+                    "gerComanyOverview",
+                    "createdTime -> ${companyOverviewFromLocal.localCreationTime}"
+                )
+                Log.d("gerComanyOverview", "company overview from local is not null but expired")
                 val companyOverview = stockRepository.getCompanyOverview(ticker)
                 if (companyOverview != null) {
                     localRepository.deleteCompanyOverviewFromLocal(companyOverview.Symbol)
-                    localRepository.addCompanyOverviewToLocal(companyOverview)
+                    localRepository.addCompanyOverviewToLocal(companyOverview.copy(localCreationTime = System.currentTimeMillis()))
                     val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
                     emit(Resource.Success(overViewLocal))
                 } else if (information != null) {
-                    emit(Resource.Error(information))
+                    val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
+                    if (overViewLocal == null) {
+                        emit(Resource.Error(information))
+                    } else {
+                        val localOverview = localRepository.getCompanyOverviewFromLocal(ticker)
+                        emit(Resource.Success(localOverview))
+                    }
                 } else {
                     emit(Resource.Error("Something went wrong"))
                 }
@@ -89,16 +101,24 @@ class StockUseCase @Inject constructor(
                 val companyOverview = stockRepository.getCompanyOverview(ticker)
                 Log.d("gerComanyOverview", "calling api")
                 if (companyOverview != null && companyOverview.Information == null) {
-                    localRepository.addCompanyOverviewToLocal(companyOverview)
+                    localRepository.addCompanyOverviewToLocal(companyOverview.copy(localCreationTime = System.currentTimeMillis()))
                     val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
                     emit(Resource.Success(overViewLocal))
                 } else if (companyOverview?.Information != null) {
-                    emit(Resource.Error(companyOverview.Information))
+                    val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
+                    if (overViewLocal == null) {
+                        emit(Resource.Error(companyOverview.Information))
+                    } else {
+                        val localOverview = localRepository.getCompanyOverviewFromLocal(ticker)
+                        emit(Resource.Success(localOverview))
+                    }
+
                 } else {
                     emit(Resource.Error("Something went wrong"))
                 }
 
             } else {
+                Log.d("gerComanyOverview", "company overview local is not null")
                 val overViewLocal = localRepository.getCompanyOverviewFromLocal(ticker)
                 emit(Resource.Success(overViewLocal))
             }
@@ -135,7 +155,7 @@ class StockUseCase @Inject constructor(
                             )
                         )
                     }
-                    if (results.isNotEmpty()){
+                    if (results.isNotEmpty()) {
                         localRepository.addIntraDayInfoGraphToLocal(
                             IntraDayGraphEntity(
                                 symbol = ticker,
@@ -146,10 +166,10 @@ class StockUseCase @Inject constructor(
                         val infoFromLocal = localRepository.getIntraDayInfoGraphFromLocal(ticker)
                         if (infoFromLocal != null) {
                             emit(Resource.Success(infoFromLocal.intraDayInfo))
-                        }else{
+                        } else {
                             emit(Resource.Error("Something went wrong!"))
                         }
-                    }else{
+                    } else {
                         emit(Resource.Error("Graph not available."))
                     }
 
@@ -166,7 +186,7 @@ class StockUseCase @Inject constructor(
                             )
                         )
                     }
-                    if (results.isNotEmpty()){
+                    if (results.isNotEmpty()) {
                         localRepository.addIntraDayInfoGraphToLocal(
                             IntraDayGraphEntity(
                                 symbol = ticker,
@@ -178,7 +198,7 @@ class StockUseCase @Inject constructor(
                         if (infoFromLocal != null) {
                             emit(Resource.Success(infoFromLocal.intraDayInfo))
                         }
-                    }else{
+                    } else {
                         emit(Resource.Error("Can not load graph at the moment, Please try again after some time."))
                     }
 

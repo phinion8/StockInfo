@@ -5,6 +5,7 @@ import com.priyanshu.stockinfo.domain.models.CompanyOverview
 import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
 import com.priyanshu.stockinfo.domain.models.search.SearchItem
 import com.priyanshu.stockinfo.domain.repositories.StockRepository
+import com.priyanshu.stockinfo.utils.Constants
 import okhttp3.ResponseBody
 import javax.inject.Inject
 
@@ -14,17 +15,16 @@ class StockRepositoryImpl @Inject constructor(
     override suspend fun getTopGainersAndLosers(): TopGainerAndLosers {
         return stockApi.getTopGainersAndLosers(apiKey = "demo")
     }
-//
 
     override suspend fun getCompanyOverview(ticker: String): CompanyOverview? {
-        return stockApi.getCompanyOverview(ticker, "demo")
+        return stockApi.getCompanyOverview(ticker, Constants.DEMO_API_KEY)
     }
 
     override suspend fun getIntraDayInfo(ticker: String): ResponseBody {
-        return stockApi.getIntraDayInfo(ticker, "60min", "52RKZ8FDKIAMNML5", "csv")
+        return stockApi.getIntraDayInfo(ticker, "60min", Constants.DEMO_API_KEY, "csv")
     }
 
     override suspend fun searchTicker(keyword: String): SearchItem {
-        return stockApi.searchTicker(keyword, "demo")
+        return stockApi.searchTicker(keyword, Constants.DEMO_API_KEY)
     }
 }
