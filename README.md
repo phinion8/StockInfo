@@ -73,5 +73,38 @@ The Stock Info App is a comprehensive tool for searching stock market related in
 - Recent searches, intraday graphs, top gainers, top losers, most traided and company overview are cached for offline access with a cache expiry of 30 min.
 
 ### Dark Mode and Light Mode
-- Toggle between dark mode and light mode to suit your preferences.
+- Toggle between dark mode and light mode to suit your preferences
+
+### Handling Loading/Error/Empty States
+
+The app handles loading, error, and empty states for all cases to ensure a smooth user experience.
+
+### Folder Structure
+
+The app follows a standard, well-defined folder structure to maintain clean and maintainable code.
+
+## Third Party Library Used
+- Lottie Files
+- YCharts
+- Open CV
+- Coil
+
+## Getting Started
+
+### Prerequisites
+- Android Studio
+- An Android device or emulator running Android 5.0 (Lollipop) or higher
+
+### Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/phinion8/StockInfo
+    ```
+
+2. Open the project in Android Studio.
+
+3. Build and run the app on your device or emulator.
+
+
 
