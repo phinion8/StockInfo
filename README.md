@@ -19,7 +19,6 @@ The Stock Info App is a comprehensive tool for searching stock market related in
   <img src="screenshots/screenshot_5_dark.png" alt="Most Traded" width="200"/>&nbsp;&nbsp;&nbsp;
   <img src="screenshots/screenshot_6_dark.png" alt="Search" width="200"/>&nbsp;&nbsp;&nbsp;
   <img src="screenshots/screenshot_7_dark.png" alt="Search" width="200"/>&nbsp;&nbsp;&nbsp;
-  <img src="screenshots/screenshot_6_dark.png" alt="Search" width="200"/>&nbsp;&nbsp;&nbsp;
   <img src="screenshots/screenshot_8_dark.png" alt="Search" width="200"/>&nbsp;&nbsp;&nbsp;
   <img src="screenshots/screenshot_9_dark.png" alt="Search" width="200"/>&nbsp;&nbsp;&nbsp;
   <img src="screenshots/screenshot_10_dark.png" alt="Company Overview" width="200"/>&nbsp;&nbsp;&nbsp;
