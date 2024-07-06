@@ -1,6 +1,7 @@
 # Stock Info App
 
 [Watch App Overview Video](https://drive.google.com/file/d/18BJJ-Bpao5YjYEumclnhpqHLVM-N0J1A/view?usp=sharing)<br/>
+
 [Download The App](https://drive.google.com/file/d/1RHm6mAgU2dss24EvBtlHbTu5aOj09OZw/view?usp=sharing)
 
 ## Overview
