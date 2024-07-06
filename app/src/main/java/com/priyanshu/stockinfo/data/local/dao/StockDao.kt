@@ -4,9 +4,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.priyanshu.stockinfo.data.local.entities.SearchEntity
 import com.priyanshu.stockinfo.domain.models.CompanyOverview
+import com.priyanshu.stockinfo.domain.models.IntraDayGraphEntity
 import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
+import com.priyanshu.stockinfo.domain.models.waitlist.WaitlistEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -38,5 +41,34 @@ interface StockDao {
 
     @Query("DELETE FROM company_overview_table WHERE symbol = :symbol")
     suspend fun deleteCompanyOverview(symbol: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addWaitlistEntity(waitlistEntity: WaitlistEntity)
+
+    @Query("SELECT * FROM waitlist_table")
+    suspend fun getWaitlistEntityList(): List<WaitlistEntity>
+
+    @Query("DELETE FROM waitlist_table WHERE symbol = :symbol")
+    suspend fun deleteWaitlistEntity(symbol: String)
+
+    @Query("SELECT * FROM waitlist_table WHERE symbol = :symbol LIMIT 1")
+    suspend fun getWaitlistEntity(symbol: String): WaitlistEntity?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM waitlist_table WHERE symbol = :symbol)")
+    fun isItemInWaitlist(symbol: String): Boolean
+
+    @Query("SELECT * FROM waitlist_table WHERE name LIKE '%' || :searchQuery || '%' OR symbol LIKE '%' || :searchQuery || '%' OR type LIKE '%' || :searchQuery || '%'")
+    fun searchWaitlist(searchQuery: String): List<WaitlistEntity>
+
+    @Insert
+    fun addIntraDayInfoGraphToLocal(intraDayGraphEntity: IntraDayGraphEntity)
+
+    @Query("SELECT * FROM intraday_graph_table WHERE symbol = :symbol")
+    fun getIntraDayInfoGraphFromLocal(symbol: String): IntraDayGraphEntity?
+
+    @Query("DELETE FROM intraday_graph_table WHERE symbol = :symbol")
+    fun deleteIntraDayInfoGraphFromLocal(symbol: String)
+
+
 
 }

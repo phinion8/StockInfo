@@ -12,15 +12,16 @@ class StockRepositoryImpl @Inject constructor(
     private val stockApi: StockApi
 ) : StockRepository {
     override suspend fun getTopGainersAndLosers(): TopGainerAndLosers {
-        return stockApi.getTopGainersAndLosers()
+        return stockApi.getTopGainersAndLosers(apiKey = "demo")
     }
+//
 
     override suspend fun getCompanyOverview(ticker: String): CompanyOverview? {
         return stockApi.getCompanyOverview(ticker, "demo")
     }
 
     override suspend fun getIntraDayInfo(ticker: String): ResponseBody {
-        return stockApi.getIntraDayInfo(ticker, "60min", "RB17JB0AWDKNAB70", "csv")
+        return stockApi.getIntraDayInfo(ticker, "60min", "52RKZ8FDKIAMNML5", "csv")
     }
 
     override suspend fun searchTicker(keyword: String): SearchItem {

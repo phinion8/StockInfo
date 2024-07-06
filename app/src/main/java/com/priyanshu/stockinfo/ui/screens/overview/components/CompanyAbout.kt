@@ -33,6 +33,7 @@ import com.priyanshu.stockinfo.ui.theme.lightGray
 import com.priyanshu.stockinfo.ui.theme.primaryColor
 import com.priyanshu.stockinfo.ui.theme.white
 import com.priyanshu.stockinfo.utils.AppUtils
+import org.apache.commons.text.matcher.StringMatcher
 
 @Composable
 fun CompanyAbout(
@@ -48,7 +49,8 @@ fun CompanyAbout(
     beta: String,
     dividendYield: String,
     profitMargin: String,
-    pbRatio: String
+    pbRatio: String,
+    isGraphLoading: Boolean = false
 ) {
 
     val price by remember {
@@ -136,50 +138,53 @@ fun CompanyAbout(
             }
 
 
+            if (!isGraphLoading) {
+                Spacer(modifier = Modifier.height(4.dp))
 
-            Spacer(modifier = Modifier.height(4.dp))
 
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+                    Text(
+                        text = `52WeekLow`,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                        )
+                    )
+
+                    Text(
+                        text = `52WeekHigh`,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = `52WeekLow`,
+                    modifier = Modifier
+                        .fillMaxWidth(plot),
+                    text = "${currentPrice}\n▼",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold, fontSize = 14.sp
+                        lineHeight = 16.sp,
+                        textAlign = TextAlign.End,
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
 
-                Text(
-                    text = `52WeekHigh`,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp
-                    )
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = lightGray
                 )
-
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(plot),
-                text = "${currentPrice}\n▼",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    lineHeight = 16.sp,
-                    textAlign = TextAlign.End,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = lightGray
-            )
 
 
             Spacer(modifier = Modifier.height(16.dp))

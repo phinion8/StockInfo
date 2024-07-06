@@ -6,6 +6,7 @@ import com.priyanshu.stockinfo.domain.models.TopGainerAndLosers
 import com.priyanshu.stockinfo.domain.usecases.StockUseCase
 import com.priyanshu.stockinfo.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getTopGainersAndLosers() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             useCase.getTopGainersAndLosers().collect { result ->
 
                 when (result) {

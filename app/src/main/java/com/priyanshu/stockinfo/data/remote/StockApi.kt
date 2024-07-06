@@ -9,8 +9,10 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface StockApi {
-    @GET("query?function=TOP_GAINERS_LOSERS&apikey=demo")
-    suspend fun getTopGainersAndLosers(): TopGainerAndLosers
+    @GET("query?function=TOP_GAINERS_LOSERS")
+    suspend fun getTopGainersAndLosers(
+        @Query("apikey") apiKey: String
+    ): TopGainerAndLosers
 
     @GET("query?function=OVERVIEW")
     suspend fun getCompanyOverview(

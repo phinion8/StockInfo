@@ -1,13 +1,11 @@
-package com.priyanshu.stockinfo.ui.screens.home.components
+package com.priyanshu.stockinfo.ui.screens.watchlist.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,16 +15,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.priyanshu.stockinfo.domain.models.TopGainerLoserItem
+import com.priyanshu.stockinfo.domain.models.waitlist.WaitlistEntity
+import com.priyanshu.stockinfo.ui.screens.watchlist.viewModel.WaitlistViewModel
 import com.priyanshu.stockinfo.ui.theme.gray300
 import com.priyanshu.stockinfo.ui.theme.green
+import com.priyanshu.stockinfo.ui.theme.lightGray
 import com.priyanshu.stockinfo.ui.theme.red
 
 @Composable
-fun TopGainerLoserItem(
-    topGainerLoserItem: TopGainerLoserItem,
-    onItemClick: (TopGainerLoserItem) -> Unit
+fun ItemWaitlist(
+    waitlistEntity: WaitlistEntity,
+    onItemClick: (symbol: String) -> Unit
 ) {
-
     Column(
         Modifier
             .padding(all = 8.dp)
@@ -35,31 +35,23 @@ fun TopGainerLoserItem(
             .border(width = 1.dp, color = gray300, shape = RoundedCornerShape(16.dp))
             .padding(all = 12.dp)
             .clickable {
-                onItemClick(topGainerLoserItem)
+                onItemClick(waitlistEntity.symbol)
             },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
         Text(
-            text = topGainerLoserItem.ticker,
+            text = waitlistEntity.name,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
         )
 
-        Text(text = "$${topGainerLoserItem.price}", style = MaterialTheme.typography.bodyLarge)
+        Text(text = waitlistEntity.symbol, style = MaterialTheme.typography.bodyMedium)
 
         Text(
-            text = if (!topGainerLoserItem.change_amount.contains("-")) "▲ ${topGainerLoserItem.change_amount}" else "▼ ${topGainerLoserItem.change_amount}",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = if (!topGainerLoserItem.change_amount.contains("-")) green else red
-            )
-        )
-
-        Text(
-            text = if (topGainerLoserItem.change_percentage.contains("-")) "${topGainerLoserItem.change_percentage}" else "+${topGainerLoserItem.change_percentage}",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = if (!topGainerLoserItem.change_amount.contains("-")) green else red
-            )
+            text = waitlistEntity.type,
+            style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
         )
     }
 
 }
+

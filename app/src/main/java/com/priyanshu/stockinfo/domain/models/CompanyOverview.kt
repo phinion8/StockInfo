@@ -1,16 +1,27 @@
 package com.priyanshu.stockinfo.domain.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
-@Entity(tableName = "company_overview_table")
+@Entity(
+    tableName = "company_overview_table",
+    indices = [Index(value = ["Symbol"], unique = true)]
+)
 data class CompanyOverview(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val Symbol: String,
-    val `200DayMovingAverage`: String,
-    val `50DayMovingAverage`: String,
-    val `52WeekHigh`: String,
-    val `52WeekLow`: String,
+    @SerializedName("200DayMovingAverage")
+    val twoHundredDayMovingAverage: String,
+    @SerializedName("50DayMovingAverage")
+    val fiftyDayMovingAverage: String,
+    @SerializedName("52WeekHigh")
+    val fiftyTwoWeeksHigh: String,
+    @SerializedName("52WeekLow")
+    val fiftyTwoWeeksLow: String,
     val Address: String,
     val AnalystRatingBuy: String,
     val AnalystRatingHold: String,
@@ -56,5 +67,7 @@ data class CompanyOverview(
     val RevenueTTM: String,
     val Sector: String,
     val SharesOutstanding: String,
-    val TrailingPE: String
-)
+    val TrailingPE: String,
+    val Information: String? = null,
+    val localCreationTime: Long = System.currentTimeMillis()
+): Serializable

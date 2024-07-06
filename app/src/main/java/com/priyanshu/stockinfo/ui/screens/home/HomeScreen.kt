@@ -1,10 +1,10 @@
 package com.priyanshu.stockinfo.ui.screens.home
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +25,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +54,9 @@ import com.priyanshu.stockinfo.ui.screens.home.components.TopAppBar
 import com.priyanshu.stockinfo.ui.screens.home.components.TopGainerLoserItem
 import com.priyanshu.stockinfo.ui.screens.home.components.TopGainerLoserItemLoading
 import com.priyanshu.stockinfo.ui.screens.home.viewModel.HomeViewModel
+import com.priyanshu.stockinfo.ui.theme.gray500
+import com.priyanshu.stockinfo.ui.theme.lightGray
+import com.priyanshu.stockinfo.ui.theme.secondaryColor
 import com.priyanshu.stockinfo.utils.isScrollingUp
 import kotlinx.coroutines.launch
 
@@ -62,8 +68,22 @@ fun HomeScreen(
         mutableStateOf(false)
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Scaffold(
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState){data->
+
+                    Snackbar(
+                        snackbarData = data,
+                        contentColor = lightGray,
+                        containerColor = gray500
+                    )
+
+                }
+            },
             content = { innerPadding ->
 
                 HomeNavGraph(
@@ -71,7 +91,9 @@ fun HomeScreen(
                     innerPadding = innerPadding,
                     showBottomBar = {
                         bottomBarVisibility = it
-                    })
+                    },
+                    snackbarHostState
+                )
 
             }, bottomBar = {
                 if (bottomBarVisibility) {

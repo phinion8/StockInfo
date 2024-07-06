@@ -1,7 +1,7 @@
 package com.priyanshu.stockinfo.navigation
 
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -49,7 +49,8 @@ fun SetUpNavigation(
 fun HomeNavGraph(
     navController: NavHostController,
     innerPadding: PaddingValues,
-    showBottomBar: (Boolean) -> Unit
+    showBottomBar: (Boolean) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     NavHost(
         navController = navController,
@@ -62,7 +63,7 @@ fun HomeNavGraph(
         }
         composable(route = Screens.Watchlist.route) {
             showBottomBar(true)
-            WatchListScreen(innerPadding = innerPadding)
+            WatchListScreen(innerPadding = innerPadding, navController)
         }
         composable(route = Screens.Search.route) {
             showBottomBar(false)
@@ -77,7 +78,7 @@ fun HomeNavGraph(
             val ticker = navBackStackEntry.arguments?.getString("ticker")
             showBottomBar(false)
             if (ticker != null) {
-                CompanyOverviewScreen(ticker)
+                CompanyOverviewScreen(ticker, snackbarHostState = snackbarHostState, navController = navController)
             }
         }
     }

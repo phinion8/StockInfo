@@ -2,6 +2,7 @@ package com.priyanshu.stockinfo.ui.screens.overview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,16 +32,19 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.AccessibilityConfig
 import co.yml.charts.common.model.Point
@@ -53,10 +59,13 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.priyanshu.stockinfo.R
 import com.priyanshu.stockinfo.domain.models.IntraDayInfo
+import com.priyanshu.stockinfo.domain.models.IntraDayInfoEntity
 import com.priyanshu.stockinfo.ui.components.LoadingDialog
 import com.priyanshu.stockinfo.ui.screens.overview.components.CompanyAbout
 import com.priyanshu.stockinfo.ui.screens.overview.viewModel.CompanyOverviewViewModel
+import com.priyanshu.stockinfo.ui.screens.search.ErrorLayout
 import com.priyanshu.stockinfo.ui.theme.blue
 import com.priyanshu.stockinfo.ui.theme.green
 import com.priyanshu.stockinfo.ui.theme.lightGray
@@ -64,26 +73,37 @@ import com.priyanshu.stockinfo.ui.theme.primaryColor
 import com.priyanshu.stockinfo.ui.theme.red
 import com.priyanshu.stockinfo.ui.theme.white
 import com.priyanshu.stockinfo.utils.AppUtils
+import kotlinx.coroutines.launch
 
 @Composable
 fun CompanyOverviewScreen(
     ticker: String,
-    viewModel: CompanyOverviewViewModel = hiltViewModel()
+    viewModel: CompanyOverviewViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState,
+    navController: NavController
 ) {
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getCompanyOverview("IBM")
+        viewModel.getCompanyOverview(ticker)
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getIntraDayInfoList("AAPL")
+        viewModel.getIntraDayInfoList(ticker)
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.isItemInWaitlist(ticker)
     }
 
     val companyOverview by viewModel.companyOverviewState.collectAsState()
     val intraDayInfoList by viewModel.intraDayInfoListState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val graphError by viewModel.graphError.collectAsState()
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    val graphLoading by viewModel.isGraphLoading.collectAsState()
+    val isItemInWaitlist by viewModel.isItemInWaitlist.collectAsState()
     var currentPrice by remember {
         mutableStateOf(0.0)
     }
@@ -92,7 +112,7 @@ fun CompanyOverviewScreen(
     }
     val percentage by remember {
         derivedStateOf {
-            ((currentPrice - openingPrice) / openingPrice ) * 100
+            ((currentPrice - openingPrice) / openingPrice) * 100
         }
     }
 
@@ -109,116 +129,159 @@ fun CompanyOverviewScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .verticalScroll(scrollState)
-    ) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 8.dp, horizontal = 16.dp)
+                .verticalScroll(scrollState)
+        ) {
 
-        Icon(
-            modifier = Modifier.size(24.dp),
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back button",
-            tint = primaryColor
-        )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Icon(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            navController.popBackStack()
+                        },
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back button",
+                    tint = primaryColor
+                )
 
-        if (!isLoading) {
-            if (companyOverview != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(0.5f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                Icon(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            if (isItemInWaitlist) {
+                                viewModel.deleteWaitlistEntity(ticker)
+                                viewModel.updateWaitlistState(false)
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Item removed from waitlist",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            } else {
+                                viewModel.saveItemInWaitlist(ticker)
+                                viewModel.updateWaitlistState(true)
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Item added to waitlist",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        },
+                    painter = painterResource(id = if (isItemInWaitlist) R.drawable.ic_bookmark_filled  else R.drawable.ic_bookmark_outlined),
+                    contentDescription = "Waitlist button",
+                    tint = green
+                )
+
+            }
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!isLoading && error == null) {
+                if (companyOverview != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        companyOverview?.let {
-                            Text(
-                                text = it.Name,
-                                style = MaterialTheme.typography.headlineLarge.copy(
-                                    fontSize = 18.sp,
-                                    lineHeight = 24.sp
+                        Column(
+                            modifier = Modifier.fillMaxWidth(0.5f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            companyOverview?.let {
+                                Text(
+                                    text = it.Name,
+                                    style = MaterialTheme.typography.headlineLarge.copy(
+                                        fontSize = 18.sp,
+                                        lineHeight = 24.sp
+                                    )
                                 )
-                            )
-                        }
-                        Text(
-                            text = "(${companyOverview?.Symbol}) ${companyOverview?.AssetType}",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
-                        )
-                        companyOverview?.let {
+                            }
                             Text(
-                                text = it.Exchange,
+                                text = "(${companyOverview?.Symbol}) ${companyOverview?.AssetType}",
                                 style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
                             )
+                            companyOverview?.let {
+                                Text(
+                                    text = it.Exchange,
+                                    style = MaterialTheme.typography.bodyMedium.copy(color = lightGray)
+                                )
+                            }
+                        }
+
+                        if (currentPrice != 0.0) {
+                            Column {
+                                Text(
+                                    text = "$$currentPrice",
+                                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 18.sp)
+                                )
+                                Text(
+                                    text = if (percentage > 0) ("+${
+                                        String.format("%.2f", percentage).toFloat()
+                                    }%▲") else "${
+                                        percentage
+                                    }%▼",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = if (percentage > 0) green else red
+                                    )
+                                )
+                            }
                         }
                     }
 
-                    if (currentPrice != 0.0){
-                        Column {
-                            Text(
-                                text = "$$currentPrice",
-                                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 18.sp)
-                            )
-                            Text(
-                                text = if (percentage > 0) ("+${String.format("%.2f", percentage).toFloat()}%▲") else "${
-                                    percentage
-                                }%▼",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = if (percentage > 0) green else red
-                                )
-                            )
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CompanyChart(
+                        intraDayInfoList = intraDayInfoList,
+                        isLoading = graphLoading,
+                        graphError = graphError
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CompanyAbout(
+                        title = "About ${companyOverview!!.Name}",
+                        about = companyOverview!!.Description,
+                        industry = companyOverview!!.Industry,
+                        sector = companyOverview!!.Sector,
+                        `52WeekLow` = companyOverview!!.fiftyTwoWeeksLow,
+                        `52WeekHigh` = companyOverview!!.fiftyTwoWeeksHigh,
+                        currentPrice = currentPrice.toString(),
+                        marketCap = companyOverview!!.MarketCapitalization,
+                        peRatio = companyOverview!!.PERatio,
+                        beta = companyOverview!!.Beta,
+                        dividendYield = companyOverview!!.DividendYield,
+                        profitMargin = companyOverview!!.ProfitMargin,
+                        pbRatio = companyOverview!!.PriceToBookRatio
+                    )
+
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                CompanyChart(intraDayInfoList = intraDayInfoList, isLoading = isLoading)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                CompanyAbout(
-                    title = "About ${companyOverview!!.Name}",
-                    about = companyOverview!!.Description,
-                    industry = companyOverview!!.Industry,
-                    sector = companyOverview!!.Sector,
-                    `52WeekLow` = "50",
-                    `52WeekHigh` = "228",
-                    currentPrice = "110",
-                    marketCap = companyOverview!!.MarketCapitalization,
-                    peRatio = companyOverview!!.PERatio,
-                    beta = companyOverview!!.Beta,
-                    dividendYield = companyOverview!!.DividendYield,
-                    profitMargin = companyOverview!!.ProfitMargin,
-                    pbRatio = companyOverview!!.PriceToBookRatio
-                )
-
             }
 
-        } else if (error != null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = error.toString(),
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        color = lightGray,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
         }
-
-
+        if (error != null) {
+            ErrorLayout(error = error)
+        }
     }
+
 
 }
 
 @Composable
 fun CompanyChart(
     isLoading: Boolean,
-    intraDayInfoList: List<IntraDayInfo>
+    intraDayInfoList: List<IntraDayInfoEntity>,
+    graphError: String? = null
 ) {
 
     Column(
@@ -229,26 +292,22 @@ fun CompanyChart(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        if (!isLoading && intraDayInfoList.isNotEmpty()) {
-            DayChart(intraDayInfoList = intraDayInfoList)
+        if (graphError != null) {
+            ErrorLayout(error = graphError)
         } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp), contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = blue)
+            if (!isLoading && intraDayInfoList.isNotEmpty()) {
+                DayChart(intraDayInfoList = intraDayInfoList)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp), contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = blue)
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .clip(CircleShape)
-                .border(width = 1.dp, color = lightGray, shape = CircleShape)
-                .padding(all = 8.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
             ChatItemTab(title = "1D", selected = true)
         }
     }
@@ -285,19 +344,19 @@ fun ChatItemTab(
 
 @Composable
 fun DayChart(
-    intraDayInfoList: List<IntraDayInfo>
+    intraDayInfoList: List<IntraDayInfoEntity>
 ) {
     val steps = intraDayInfoList.size
     val yPointsData = ArrayList<Float>()
     val xPointsData = ArrayList<Float>()
-    intraDayInfoList.map {item->
+    intraDayInfoList.map { item ->
         yPointsData.add(item.close.toFloat())
-        xPointsData.add(AppUtils.getHourFromDateTime(item.date).toFloat())
+        xPointsData.add(item.hour.toFloat())
     }
     yPointsData.sort()
     val pointsData = intraDayInfoList.map { intraDayInfo ->
         Point(
-            AppUtils.getHourFromDateTime(intraDayInfo.date).toFloat(),
+            intraDayInfo.hour.toFloat(),
             intraDayInfo.close.toFloat(),
         )
     }
@@ -309,7 +368,11 @@ fun DayChart(
 
     val xAxisData = AxisData.Builder().axisStepSize(100.dp).backgroundColor(Color.Transparent)
         .steps(pointsData.size - 1).labelData { i ->
-            intraDayInfoList[i].date.hour.toString() + ":00"
+            if (i < intraDayInfoList.size){
+                intraDayInfoList[i].hour.toString() + ":00"
+            }else{
+                "00"
+            }
         }.labelAndAxisLinePadding(15.dp)
         .axisLineColor(blue).axisLabelColor(blue).axisLabelFontSize(10.sp).build()
 
